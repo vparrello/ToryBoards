@@ -1,3 +1,3 @@
 #ToryBoards
 
-The algorithm for creating a dynamic puzzle that can be tracked and unique for each iteration. Our goal is to make puzzles fun and different in a way that each puzzle is a brand new challenge for any puzzler.
+The algorithm for creating a dynamic puzzle that is unique for each iteration and can be tracked. It uses the dimensions of the board to guide the shapes of the pieces. It then takes that shape and creates a unique piece based on that shape.
