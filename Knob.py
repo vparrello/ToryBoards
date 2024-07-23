@@ -10,5 +10,12 @@
 import Piece
 
 class Knob:
-    def __init__(self, knob_id) -> None:
+    def __init__(self, knob_id, side_length, corner_angle) -> None:
         self.knob_id = knob_id
+        self.side_length = side_length
+        self.corner_angle = corner_angle
+
+    def draw_side(self, turtle):
+        turtle.down()
+        turtle.forward(self.side_length)
+        turtle.turn

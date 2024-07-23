@@ -9,6 +9,7 @@
 # saves the puzzle and piece dictionary in a CSV file by ID numbers and a picture of the overall pattern by the same name as the ID number.
 ####
 import Piece
+import math
 
 class Board:
     def __init__(self, board_id, num_of_pieces, width, height) -> None:
@@ -18,9 +19,20 @@ class Board:
         self.height = height
         self.piece_lookup = {}
 
-        # If we ever do shapes that are not regular, we will need this variable
-        # self.perimeter = perimeter
+    def make_edge(self, turtle_object, x_dimension, y_dimension):
+        '''Used to create the edge of a puzzle according to rectangular dimensions'''
+        turtle_object.forward(x_dimension)
+        turtle_object.right(90)
+        turtle_object.forward(y_dimension)
+        turtle_object.right(90)
+        turtle_object.forward(x_dimension)
+        turtle_object.right(90)
+        turtle_object.forward(y_dimension)
+        turtle_object.right(90)
+        return
 
-
-
+    def piece_area_calc(self):
+        '''Calculates Hexagon Piece Area based on height and width of board'''
+        piece_area = self.width * self.height / self.num_of_pieces
+        return piece_area
         
