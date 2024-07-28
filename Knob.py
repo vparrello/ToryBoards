@@ -15,7 +15,17 @@ class Knob:
         self.side_length = side_length
         self.corner_angle = corner_angle
 
-    def draw_side(self, turtle):
+    def draw_side(self, turtle, reflect):
+        turtle.down()
+        corner_angle = self.corner_angle
+        if reflect == True:
+            corner_angle = -self.corner_angle
+        turtle.forward(self.side_length)
+        turtle.right(corner_angle)
+        return
+
+    def draw_straight_side(self, turtle):
         turtle.down()
         turtle.forward(self.side_length)
-        turtle.turn
+        turtle.up()
+        return
