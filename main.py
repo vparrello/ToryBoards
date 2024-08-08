@@ -9,6 +9,7 @@
 ####
 
 import PuzzleFactory
+from svg_turtle import SvgTurtle
 
 # Environment variables
 # TODO create arguments asking for number of pieces, piece type (trad, hex, squiggly), and Edge T/F
@@ -23,5 +24,3 @@ PIECE_TYPE = "Hexagon"
 
 puzzle = PuzzleFactory.PuzzleFactory(PIECE_COUNT, X_DIMENSION, Y_DIMENSION, EDGE_YES, PIECE_TYPE)
 puzzle.make_puzzle()
-
-

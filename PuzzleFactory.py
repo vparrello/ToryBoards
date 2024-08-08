@@ -32,8 +32,9 @@ class PuzzleFactory:
         screen = turtle.Screen()
         screen.setworldcoordinates(self.x_dim+50, self.y_dim+50, 0, 0)
         #Initialize Turtle in the top left corner of the screen without drawing.
-        ziti = turtle.Turtle()
-        ziti.speed(0)
+        ziti = SvgTurtle(self.x_dim * 2 + 50, self.y_dim * 2 + 50)
+        # ziti = turtle.Turtle()
+        # ziti.speed(0)
         # ziti.hideturtle()
         ziti.up()
         ziti.setpos(0, self.y_dim)
@@ -82,21 +83,27 @@ class PuzzleFactory:
             for i in range(len(all_turtles)):
                 if i == 0:
                     while all_turtles[i].ycor() >= initial_knob.side_length:
-                        initial_knob.draw_side(all_turtles[i], False)
+                        initial_knob.draw_side(all_turtles[i])
+                        initial_knob.turn_turtle(all_turtles[i], False)
                         position_tuple = (int(all_turtles[i].xcor()), int(all_turtles[i].ycor()))
                         row_addresses.append(position_tuple)
-                        initial_knob.draw_side(all_turtles[i], True)
+                        initial_knob.draw_side(all_turtles[i])
+                        initial_knob.turn_turtle(all_turtles[i], True)
                         position_tuple = (int(all_turtles[i].xcor()), int(all_turtles[i].ycor()))
                         row_addresses.append(position_tuple)
                     print(f"Row addresses: {row_addresses}")
                 elif i % 2 == 0:
                     while all_turtles[i].ycor() >= initial_knob.side_length:
-                        initial_knob.draw_side(all_turtles[i], False)
-                        initial_knob.draw_side(all_turtles[i], True)
+                        initial_knob.draw_side(all_turtles[i])
+                        initial_knob.turn_turtle(all_turtles[i], False)
+                        initial_knob.draw_side(all_turtles[i])
+                        initial_knob.turn_turtle(all_turtles[i], True)
                 else:
                     while all_turtles[i].ycor() >= initial_knob.side_length:
-                        initial_knob.draw_side(all_turtles[i], True)
-                        initial_knob.draw_side(all_turtles[i], False)
+                        initial_knob.draw_side(all_turtles[i])
+                        initial_knob.turn_turtle(all_turtles[i], True)
+                        initial_knob.draw_side(all_turtles[i])
+                        initial_knob.turn_turtle(all_turtles[i], False)
             for address in row_addresses:
                 ziti.up()
                 ziti.setpos(address[0], address[1])
@@ -112,7 +119,7 @@ class PuzzleFactory:
                         counter += 1
                 else:
                     #Print one and skip two
-                    while ziti.xcor() <= (self.x_dim - initial_knob.side_length):
+                    while ziti.xcor() <= (self.x_dim -  initial_knob.side_length):
                         if counter % 3 == 0:
                             initial_knob.draw_straight_side(ziti)
                         else:
@@ -126,7 +133,6 @@ class PuzzleFactory:
         #TODO Create that number of pieces in the puzzle.
         # for i in range(PIECE_COUNT-1):
         #   Create a piece, calculate the number of sides, call that many knobs
+        ziti.save_as('templatesmall.svg')
 
-
-        # ziti.save_as('diecut1.svg')
-        screen.done()
+        return
