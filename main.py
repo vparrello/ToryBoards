@@ -21,6 +21,8 @@ Y_DIMENSION = 1800
 EDGE_YES = True
 # Piece Type : Traditional, Hexagon, or Squiggly
 PIECE_TYPE = "Hexagon"
+DEV = True
 
-puzzle = PuzzleFactory.PuzzleFactory(PIECE_COUNT, X_DIMENSION, Y_DIMENSION, EDGE_YES, PIECE_TYPE)
-puzzle.make_puzzle()
+puzzle = PuzzleFactory.PuzzleFactory(PIECE_COUNT, X_DIMENSION, Y_DIMENSION, EDGE_YES, PIECE_TYPE, DEV)
+turtle = puzzle.make_puzzle()
+turtle.done()
