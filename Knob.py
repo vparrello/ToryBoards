@@ -65,8 +65,8 @@ class Knob:
 
     def create_knob(self, turtle):
         self.draw_side(turtle)
-        self.draw_stem(turtle)
-        self.draw_nub(turtle)
+        reflect_flag = self.draw_stem(turtle)
+        self.draw_nub(turtle, reflect_flag)
         self.stem = []
         self.nub = []
 
@@ -94,6 +94,12 @@ class Knob:
     def draw_stem(self, turtle):
         #This variable determines how long the stem will be for the following knob
         stem_length = random.randint(2, int(self.side_length * .3))
+        reflect_randomizer = random.randint(0, 100)
+        if reflect_randomizer % 2 == 0:
+            reflect_flag = True
+            stem_length = -stem_length
+        else:
+            reflect_flag = False
         #Initialize the first side of the knob
         turtle.up()
         turtle.goto(self.stem[0])
@@ -109,31 +115,30 @@ class Knob:
         self.nub.append(turtle.pos())
         self.stem.append(stem_length)
         turtle.up()
-        return
+        return reflect_flag
 
-    def draw_nub(self, turtle):
-        #This variable determines what type of shape the nub is drawn in. Adjust the end of this one to be bigger to get closer to a circle
+    def draw_nub(self, turtle, reflect_flag):
+        # This variable determines what type of shape the nub is drawn in. Adjust the end of this one to be bigger to get closer to a circle
         nub_sides = random.randint(3, 200)
-        #This variable grows or shrinks the nub depending on the percentage. Currently it is capped between 10% and 75% of the triangle safe zone
-        #shape_area = self.safe_zone * random.randint(10, 75) / 100
-        # This is how far the turtle will turn to create the shape
-        #shape_angle = ((nub_sides - 2) * 180)/ nub_sides
-        #left_turn = 180 - shape_angle
         # This is how far the turtle will travel
         stem_distance = math.sqrt(((self.nub[0][0] - self.nub[1][0])**2)+((self.nub[0][1] - self.nub[1][1])**2))
         # This calculation ensures the shape is within the safe zone
         # triangle_height = (self.side_length / 2) / math.sqrt(3)
-        #shape_apothem = self.side_length / (2 * math.tan((180 / nub_sides) * 3.14159 / 180))
-        #area_checksum = (nub_sides * shape_side_length * shape_apothem) / 2
-        #Initialize the first side of the nub
-        turtle.goto(self.nub[0])
-        turtle.left(60)
-        # turtle.forward(stem_distance/2)
-        # turtle.left(90)
-        # turtle.forward(random.randint(2, self.stem[2]))
-        turtle.down()
-        # How do I calculate the radius of this circle? It has to be smaller than the distance of the apothem from the center of the triangle
-        turtle.circle(-stem_distance, extent=300, steps=nub_sides)
+        # shape_apothem = self.side_length / (2 * math.tan((180 / nub_sides) * 3.14159 / 180))
+        # area_checksum = (nub_sides * shape_side_length * shape_apothem) / 2
+        # Initialize the first side of the nub
+        # Up
+        if reflect_flag == True:
+            turtle.goto(self.nub[1])
+            turtle.right(120)
+            turtle.down()
+            turtle.circle(-stem_distance, extent=300, steps=nub_sides)
+        # Down
+        else:
+            turtle.goto(self.nub[0])
+            turtle.left(60)
+            turtle.down()
+            turtle.circle(-stem_distance, extent=300, steps=nub_sides)
         turtle.up()
         turtle.goto(self.end_position)
         turtle.seth(self.heading)
