@@ -24,111 +24,144 @@ class PuzzleFactory:
         self.edge_bool = edge_bool
         self.piece_type = piece_type
         self.dev = DEV
+        self.pieces = 0
+        self.knobs = 0
 
+    def plus_piece(self):
+        self.pieces = self.pieces+1
+        return self.pieces
+
+    def plus_knob(self):
+        self.knobs = self.knobs+1
+        return self.knobs
 
     # Start turtle app
     # ziti = SvgTurtle(X_DIMENSION*2, Y_DIMENSION*2)
     # Create the size of the screen with 50 pixel buffer.
     # ziti._Screen.setup(ziti, width=X_DIMENSION+50, height=Y_DIMENSION+50, startx=0, starty=X_DIMENSION)
-    def make_puzzle(self):
-        screen = turtle.Screen()
-        screen.setworldcoordinates(self.x_dim+50, self.y_dim+50, 0, 0)
-        #Initialize Turtle in the top left corner of the screen without drawing.
+    def make_puzzle(self, board_id):
+
+        #Initialize Turtle for svg is different for a dev drawing
         if self.dev == False:
             ziti = SvgTurtle(self.x_dim * 2 + 50, self.y_dim * 2 + 50)
         else:
+            # Initialize the screen and set how big it is
+            screen = turtle.Screen()
+            screen.setworldcoordinates(self.x_dim + 50, self.y_dim + 50, 0, 0)
             ziti = turtle.Turtle()
             ziti.speed(0)
-            ziti.hideturtle()
         ziti.up()
         ziti.setpos(0, self.y_dim)
-        all_turtles = []
 
         # Initialize the Board
-        puzzle = Board.Board(board_id=13, num_of_pieces=self.piece_count, width=self.x_dim, height=self.y_dim)
-        # If EDGE_YES = True, then call the board to create the edges.
-        if self.edge_bool == True:
-            ziti.down()
-            if self.piece_type == "Rectangle":
-                puzzle.make_square_edge(ziti, self.x_dim, self.y_dim)
-            elif self.piece_type == "Hexagon":
-                puzzle.make_hex_edge(ziti, self.x_dim, self.y_dim)
-            ziti.up()
-        #Turtle should now be facing south?
-        ziti.right(60)
-
+        puzzle = Board.Board(board_id=board_id, num_of_pieces=self.piece_count, width=self.x_dim, height=self.y_dim)
         #Initialize piece creation
-        template_piece = Piece.Piece(piece_area=puzzle.piece_area_calc(), piece_id=13)
+        template_piece = Piece.Piece(piece_area=puzzle.piece_area_calc(), piece_id=self.plus_piece())
         # Discover "columns" and "rows". For the purposes of the calculation, we are counting equilateral triangles.
-        if self.piece_type == "Hexagon":
-            #Initialized the knob and side length
-            initial_knob = Knob.Knob(side_length=template_piece.hex_side_calc(), corner_angle=60, knob_id=13, safe_zone=template_piece.piece_area/6, beginning_coord=(ziti.xcor(), ziti.ycor()), heading=ziti.heading())
-            #Grab the current xposition for the turtle
-            x_pos = ziti.xcor()
-            #Add initial turtle to the list
-            all_turtles.append(ziti)
-            row_addresses = [(0, self.y_dim)]
-            for i in range(puzzle.column_count(initial_knob.side_length)):
-                x_pos = x_pos + initial_knob.side_length
-                if not i % 3 == 0:
-                    new_turtle = ziti.clone()
-                    new_turtle.speed(0)
-                    new_turtle.penup()
-                    new_turtle.teleport(x_pos, self.y_dim)
-                    # print(new_turtle.pos())
-                    if i % 3 == 2:
-                        new_turtle.seth(300)
-                    else:
-                        new_turtle.seth(240)
-                    all_turtles.append(new_turtle)
+        #Initialized the knob and side length
+        initial_knob = Knob.Knob(side_length=template_piece.hex_side_calc(), corner_angle=60, knob_id=self.plus_knob(), safe_zone=template_piece.piece_area/6, beginning_coord=(ziti.xcor(), ziti.ycor()), heading=ziti.heading())
+        #Grab the current xposition for the turtle
+        x_pos = ziti.xcor()
 
-            for i in range(len(all_turtles)):
-                if i == 0:
-                    while all_turtles[i].ycor() >= initial_knob.side_length:
-                        initial_knob.create_knob(all_turtles[i])
-                        initial_knob.turn_turtle(all_turtles[i], False)
-                        position_tuple = (int(all_turtles[i].xcor()), int(all_turtles[i].ycor()))
-                        row_addresses.append(position_tuple)
-                        initial_knob.create_knob(all_turtles[i])
-                        initial_knob.turn_turtle(all_turtles[i], True)
-                        position_tuple = (int(all_turtles[i].xcor()), int(all_turtles[i].ycor()))
-                        row_addresses.append(position_tuple)
-                    print(f"Row addresses: {row_addresses}")
-                elif i % 2 == 0:
-                    while all_turtles[i].ycor() >= initial_knob.side_length:
-                        initial_knob.create_knob(all_turtles[i])
-                        initial_knob.turn_turtle(all_turtles[i], False)
-                        initial_knob.create_knob(all_turtles[i])
-                        initial_knob.turn_turtle(all_turtles[i], True)
+        #Creates a list of columns and their headings so that the turtle can easily iterate through them
+        column_addresses = {(0, self.y_dim): 300}
+        for i in range(puzzle.column_count(initial_knob.side_length)):
+            x_pos = x_pos + initial_knob.side_length
+            if not i % 3 == 0:
+                ziti.goto(x_pos, self.y_dim)
+                # add drawing an edge to this point of the process on the non piece center columns
+                if i % 3 == 2:
+                    column_addresses[ziti.pos()] = 300
+                    ziti.up()
                 else:
-                    while all_turtles[i].ycor() >= initial_knob.side_length:
-                        initial_knob.create_knob(all_turtles[i])
-                        initial_knob.turn_turtle(all_turtles[i], True)
-                        initial_knob.create_knob(all_turtles[i])
-                        initial_knob.turn_turtle(all_turtles[i], False)
-            for address in row_addresses:
-                ziti.up()
-                ziti.setpos(address[0], address[1])
-                ziti.seth(0)
-                counter = 0
-                if ziti.xcor() == 0:
-                    while ziti.xcor() <= (self.x_dim - initial_knob.side_length):
-                        #print every third to keep away from trapezoids
-                        if counter % 3 == 2:
-                            initial_knob.create_knob(ziti)
+                    column_addresses[ziti.pos()] = 240
+                    #Draws the bottom edge of the columns
+                    ziti.down()
+        ziti.up()
+        print(column_addresses)
+
+        row_addresses = []
+        ziti.setpos(0, self.y_dim)
+        ziti.seth(column_addresses[(0, self.y_dim)])
+        #Creates a list of rows that are used to create bottoms, tops, and centers of the pieces while creating the right edge
+        while ziti.ycor() >= initial_knob.side_length:
+            initial_knob.draw_edge(ziti)
+            initial_knob.turn_turtle(ziti, False)
+            row_addresses.append(ziti.pos())
+            initial_knob.draw_edge(ziti)
+            initial_knob.turn_turtle(ziti, True)
+            row_addresses.append(ziti.pos())
+
+        #This draws the left edge of the puzzle. Refactor this to only need to go to the last item in the column addresses.keys list
+        for address in column_addresses.keys():
+            if address[0] > (self.x_dim - initial_knob.side_length):
+                ziti.setpos(address)
+                ziti.seth(column_addresses[address])
+                while ziti.ycor() >= initial_knob.side_length:
+                    initial_knob.draw_edge(ziti)
+                    initial_knob.turn_turtle(ziti, True)
+                    initial_knob.draw_edge(ziti)
+                    initial_knob.turn_turtle(ziti, False)
+                print(f"Row addresses: {row_addresses}")
+
+        piece_centers = []
+        #At this point we have initialized the bottom and right edges. We need to switch to the horizontal edges and then move on to the columns.
+        for address in row_addresses:
+            ziti.up()
+            ziti.setpos(address)
+            ziti.seth(0)
+            counter = 0
+            if int(ziti.xcor()) == 0:
+                # print every third to keep away from trapezoids
+                while ziti.xcor() <= (self.x_dim - initial_knob.side_length):
+                    if counter % 3 == 2:
+                        if ziti.ycor() <= initial_knob.side_length or ziti.ycor() > (self.y_dim - initial_knob.side_length):
+                            initial_knob.draw_edge(ziti)
                         else:
-                            ziti.forward(initial_knob.side_length)
-                        counter += 1
+                            initial_knob.create_knob(ziti)
+                    elif counter % 3 == 1:
+                        piece_centers.append(ziti.pos())
+                        ziti.forward(initial_knob.side_length)
+                    else:
+                        ziti.forward(initial_knob.side_length)
+                    counter += 1
+            else:
+                #Print one and skip two
+                while ziti.xcor() <= (self.x_dim - initial_knob.side_length):
+                    if counter % 3 == 0:
+                        if ziti.ycor() < (initial_knob.side_length*2) or ziti.ycor() > (self.y_dim - initial_knob.side_length):
+                            initial_knob.draw_edge(ziti)
+                        else:
+                            initial_knob.create_knob(ziti)
+                    elif counter % 3 == 2:
+                        piece_centers.append(ziti.pos())
+                        ziti.forward(initial_knob.side_length)
+                    else:
+                        ziti.forward(initial_knob.side_length)
+                    counter += 1
+        print(len(piece_centers))
+        last_column_address = list(column_addresses)[-1]
+        column_addresses.pop((0, self.y_dim))
+        column_addresses.pop(last_column_address)
+        #This creates the columns in which the pieces get created
+        for address in column_addresses.keys():
+            ziti.setpos(address)
+            ziti.seth(column_addresses[address])
+            initial_knob.draw_edge(ziti)
+            while ziti.ycor() >= (initial_knob.side_length*2):
+                if ziti.heading() == 300:
+                    initial_knob.turn_turtle(ziti, False)
+                    initial_knob.create_knob(ziti)
                 else:
-                    #Print one and skip two
-                    while ziti.xcor() <= (self.x_dim - initial_knob.side_length):
-                        if counter % 3 == 0:
-                            initial_knob.create_knob(ziti)
-                        else:
-                            ziti.forward(initial_knob.side_length)
-                        counter += 1
-        else:
-            initial_knob = Knob.Knob(side_length=template_piece.hex_side_calc(), corner_angle=60, knob_id=13, safe_zone=template_piece.piece_area/4, beginning_coord=ziti.pos(), heading=ziti.heading())
+                    initial_knob.turn_turtle(ziti, True)
+                    initial_knob.create_knob(ziti)
+            if ziti.heading() == 300:
+                initial_knob.turn_turtle(ziti, False)
+            else:
+                initial_knob.turn_turtle(ziti, True)
+            initial_knob.draw_edge(ziti)
         if self.dev == False:
             ziti.save_as('templatesmall.svg')
+        else:
+            screen.exitonclick()
         return ziti

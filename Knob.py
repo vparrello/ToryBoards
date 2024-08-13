@@ -145,3 +145,9 @@ class Knob:
             corner_angle = -self.corner_angle
         turtle.right(corner_angle)
         return
+
+    def draw_edge(self, turtle):
+        turtle.down()
+        turtle.forward(self.side_length)
+        turtle.up()
+        return

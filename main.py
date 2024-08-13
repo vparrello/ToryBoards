@@ -9,11 +9,12 @@
 ####
 
 import PuzzleFactory
-from svg_turtle import SvgTurtle
 
 # Environment variables
 # TODO create arguments asking for number of pieces, piece type (trad, hex, squiggly), and Edge T/F
-PIECE_COUNT = 500
+
+#Piece count needs to include an inflation amount for the area on the edge of the board. Either .935 or 1.06 factor
+PIECE_COUNT = 200
 # Board is 18 inches by 24 inches
 X_DIMENSION = 2400
 Y_DIMENSION = 1800
@@ -24,5 +25,4 @@ PIECE_TYPE = "Hexagon"
 DEV = True
 
 puzzle = PuzzleFactory.PuzzleFactory(PIECE_COUNT, X_DIMENSION, Y_DIMENSION, EDGE_YES, PIECE_TYPE, DEV)
-turtle = puzzle.make_puzzle()
-turtle.done()
+turtle = puzzle.make_puzzle(13)
