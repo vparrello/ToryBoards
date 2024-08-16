@@ -33,3 +33,17 @@ class Board:
     def row_count(self, knob_side_length):
          self.rows = int(self.height / knob_side_length)
          return self.rows
+
+    def draw_column_edge(self, ziti, initial_knob):
+        row_addresses = []
+        # Creates a list of rows that are used to create bottoms, tops, and centers of the pieces while creating the right edge
+        while ziti.ycor() >= initial_knob.side_length:
+            initial_knob.draw_edge(ziti)
+            if ziti.heading() == 240:
+                initial_knob.turn_turtle(ziti, True)
+            else:
+                initial_knob.turn_turtle(ziti, False)
+            row_addresses.append(ziti.pos())
+        initial_knob.draw_edge(ziti)
+        row_addresses.append(ziti.pos())
+        return row_addresses
