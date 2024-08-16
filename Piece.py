@@ -37,7 +37,12 @@ class Piece:
         return side_length
 
     def margin_security(self, place1, place2):
+        # This needs to constrain or populate in the second knob:
+        # Radius = stem distance
+        # Stem Length
+        # Stem Start
         stem_distance1 = self.knob_list[place1].stem[2]
+        start_point = self.knob_list[place1].beginning_coord
         circle_center1 = self.knob_list[place1].circle_center
         circle_center2 = self.knob_list[place2].circle_center
         centers_dist = math.sqrt(((circle_center1[0]-circle_center2[0])**2) + ((circle_center1[1]-circle_center2[1])**2))

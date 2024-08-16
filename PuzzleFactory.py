@@ -9,8 +9,6 @@
 #
 ####
 import copy
-import math
-
 import Board
 import Piece
 import Knob

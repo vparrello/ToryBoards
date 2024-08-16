@@ -65,7 +65,7 @@ class Knob:
 
     def create_knob(self, turtle):
         self.insert_stem_dist()
-        #insert side distance change here. If Top or Bottom, stem length is random.
+        # insert side distance change here. If Top or Bottom, stem length is random.
         # If BottomSomething, check against bottom of same piece for edges
         # If TopSomething, check against same side bottom and top before allowing entry
         self.draw_side(turtle)
@@ -159,5 +159,8 @@ class Knob:
         return
 
     def insert_stem_dist(self):
-        self.stem[2] = random.randint(int(.1 * self.side_length), int(.33 * self.side_length))
+        self.stem[2] = random.randint(int(.1 * self.side_length), int(.30 * self.side_length))
+        # virtual_center = (stem_start_length + radius/2, stem_height + radius * sqrt(3)/2)
+        # Puling Horror knob 2 Center X = (knob2_stem_start_length/2 + 1.75 * radius2 + stem_height2 * sqrt(3)/2 - side_length/2)
+        # Puling Horror knob 2 Center Y = sidelength * radius2 * sqrt(3)/2
         return
