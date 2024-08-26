@@ -57,14 +57,30 @@ class Knob:
         self.beginning_coord = beginning_coord
         self.end_position = beginning_coord
         self.heading = heading
+        self.radius = 0
         # Turtle Start position, turtle end position
         self.nub = []
-        # Turtle start position, Turtle End position, Stem Length
-        self.stem = [self.beginning_coord, self.end_position, 0]
+        # First distance, third distance, stem height, start coord, end coord
+        self.stem = [self.side_length, 0, 0]
         self.circle_center = None
 
+    def populate_random(self):
+        # Initialize Stem distances and stem height
+        self.stem[0] = random.randint(int(.1*self.side_length), int(.6*self.side_length))
+        stem_leftovers = self.side_length - self.stem[0]
+        self.radius = random.randint(int(.1*stem_leftovers), int(.33*stem_leftovers))
+        self.stem[1] = stem_leftovers - self.radius
+        # This is stem height
+        self.stem[2] = random.randint(int(.1*self.side_length), int(.30*self.side_length))
+        # Find the center of the circle
+        # (q1 + r/2, h + r sqrt3/2)
+        self.circle_center = (self.stem[0] + (self.radius/2), self.stem[2] + (self.radius * (math.sqrt(3)/2)) )
+        # Distance to closest edge of the circle
+        # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
+        return
+
     def create_knob(self, turtle):
-        self.insert_stem_dist()
+        self.populate_random()
         # insert side distance change here. If Top or Bottom, stem length is random.
         # If BottomSomething, check against bottom of same piece for edges
         # If TopSomething, check against same side bottom and top before allowing entry
@@ -74,48 +90,41 @@ class Knob:
         return
 
     def draw_side(self, turtle):
-        # These variables determine how wide the stem can get.
-        # TODO subtract the stem distance from the side length to determine how much of the side is left
-        stem_start = random.randint(int(.1 * self.side_length), int(.33 * self.side_length))
-        stem_distance = self.stem[2]
-        side_end = self.side_length - (stem_start + stem_distance)
         # Initialize the first coordinate of the stem
         turtle.down()
-        turtle.forward(stem_start)
-        self.stem[0] = turtle.pos()
+        turtle.forward(self.stem[0])
+        self.stem.append(turtle.pos())
         # Initialize the second coordinate of the stem
         turtle.up()
-        turtle.forward(stem_distance)
-        self.stem[1] = turtle.pos()
+        turtle.forward(self.radius)
+        self.stem.append(turtle.pos())
         turtle.down()
         # Finish the side to the end coordinate.
-        turtle.forward(side_end)
+        turtle.forward(self.stem[1])
         turtle.up()
         self.end_position = (turtle.pos())
-        self.heading = turtle.heading()
         return
 
     def draw_stem(self, turtle):
         # This variable determines how long the stem will be for the following knob
-        stem_length = random.randint(0 , int(.33 * self.side_length))
         reflect_randomizer = random.randint(0, 100)
         if reflect_randomizer % 2 == 0:
             reflect_flag = True
-            stem_length = -stem_length
+            self.stem[2] = -self.stem[2]
         else:
             reflect_flag = False
         # Initialize the first side of the knob
         turtle.up()
-        turtle.goto(self.stem[0])
+        turtle.goto(self.stem[3])
         turtle.left(90)
         turtle.down()
-        turtle.forward(stem_length)
+        turtle.forward(self.stem[2])
         self.nub.append(turtle.pos())
         turtle.up()
         # Initialize the second side of the knob
-        turtle.goto(self.stem[1])
+        turtle.goto(self.stem[4])
         turtle.down()
-        turtle.forward(stem_length)
+        turtle.forward(self.stem[2])
         self.nub.append(turtle.pos())
         turtle.up()
         return reflect_flag
@@ -124,11 +133,6 @@ class Knob:
         # This variable determines what type of shape the nub is drawn in.
         # Adjust the end of this one to be bigger to get closer to a circle
         nub_sides = random.randint(3, 2000)
-        # First turn the turtle towards the center of the circle
-        turtle.left(150)
-        turtle.forward(self.stem[2])
-        self.circle_center = turtle.pos()
-        turtle.right(150)
         # Up or right
         if reflect_flag:
             turtle.goto(self.nub[1])
@@ -138,10 +142,10 @@ class Knob:
             turtle.goto(self.nub[0])
             turtle.left(60)
         turtle.down()
-        turtle.circle(-self.stem[2], extent=300, steps=nub_sides)
+        turtle.circle(-self.radius, extent=300, steps=nub_sides)
         turtle.up()
         turtle.goto(self.end_position)
-        turtle.seth(self.heading)
+        turtle.setheading(self.heading)
         return
 
     def turn_turtle(self, turtle, reflect):
@@ -149,18 +153,4 @@ class Knob:
         if reflect:
             corner_angle = -self.corner_angle
         turtle.right(corner_angle)
-        return
-
-    def draw_edge(self, turtle):
-        turtle.down()
-        turtle.forward(self.side_length)
-        self.stem = [self.beginning_coord, self.end_position, 0]
-        turtle.up()
-        return
-
-    def insert_stem_dist(self):
-        self.stem[2] = random.randint(int(.1 * self.side_length), int(.30 * self.side_length))
-        # virtual_center = (stem_start_length + radius/2, stem_height + radius * sqrt(3)/2)
-        # Puling Horror knob 2 Center X = (knob2_stem_start_length/2 + 1.75 * radius2 + stem_height2 * sqrt(3)/2 - side_length/2)
-        # Puling Horror knob 2 Center Y = sidelength * radius2 * sqrt(3)/2
         return

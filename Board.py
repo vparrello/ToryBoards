@@ -23,7 +23,7 @@ class Board:
 
     def piece_area_calc(self):
         '''Calculates Piece Area based on height and width of board'''
-        piece_area = self.width * self.height / self.num_of_pieces
+        piece_area = (self.width * self.height * .98) / self.num_of_pieces
         return piece_area
 
     def column_count(self, knob_side_length):
@@ -33,6 +33,11 @@ class Board:
     def row_count(self, knob_side_length):
          self.rows = int(self.height / knob_side_length)
          return self.rows
+
+    def hex_side_calc(self):
+        '''Calculates 6 sides of a regular hexagon'''
+        side_length = math.sqrt(math.sqrt(3)) * math.sqrt(self.piece_area_calc() * 2 / 9)
+        return side_length
 
     def draw_column_edge(self, ziti, initial_knob):
         row_addresses = []
