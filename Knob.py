@@ -63,24 +63,24 @@ class Knob:
         # First distance, third distance, stem height, start coord, end coord
         self.stem = [self.side_length, 0, 0]
         self.circle_center = None
+        self.populate_random()
 
     def populate_random(self):
         # Initialize Stem distances and stem height
-        self.stem[0] = random.randint(int(.1*self.side_length), int(.6*self.side_length))
+        self.stem[0] = random.randint(5, int(.6*self.side_length))
         stem_leftovers = self.side_length - self.stem[0]
-        self.radius = random.randint(int(.1*stem_leftovers), int(.33*stem_leftovers))
+        self.radius = random.randint(5, int(.33*stem_leftovers))
         self.stem[1] = stem_leftovers - self.radius
         # This is stem height
-        self.stem[2] = random.randint(int(.1*self.side_length), int(.30*self.side_length))
+        self.stem[2] = random.randint(5, int(.30*self.side_length))
         # Find the center of the circle
         # (q1 + r/2, h + r sqrt3/2)
-        self.circle_center = (self.stem[0] + (self.radius/2), self.stem[2] + (self.radius * (math.sqrt(3)/2)) )
+        self.circle_center = (self.stem[0] + (self.radius/2), self.stem[2] + (self.radius * (math.sqrt(3)/2)))
         # Distance to closest edge of the circle
         # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
         return
 
     def create_knob(self, turtle):
-        self.populate_random()
         # insert side distance change here. If Top or Bottom, stem length is random.
         # If BottomSomething, check against bottom of same piece for edges
         # If TopSomething, check against same side bottom and top before allowing entry
@@ -149,8 +149,19 @@ class Knob:
         return
 
     def turn_turtle(self, turtle, reflect):
-        corner_angle = self.corner_angle
+        corner_angle = 60
         if reflect:
-            corner_angle = -self.corner_angle
+            corner_angle = -corner_angle
         turtle.right(corner_angle)
+        return
+
+    def check_margins(self, other_knob):
+        self.populate_random()
+        validation = (self.stem[0] + (self.radius/2) - (other_knob.stem[0]/2) - (7*other_knob.radius/4) - (other_knob.stem[2]*(math.sqrt(3)/2)) + (self.side_length/2))
+        while validation < 10:
+            self.populate_random()
+        # Find the center of the circle
+        # (q1 + r/2, h + r sqrt3/2)
+        # Distance to closest edge of the circle
+        # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
         return

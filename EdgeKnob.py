@@ -28,7 +28,8 @@ class EdgeKnob:
         turtle.down()
         turtle.forward(self.side_length)
         turtle.up()
-        return turtle.pos()
+        self.end_position = turtle.pos()
+        return
     
     def turn_turtle(self, turtle, reflect):
         corner_angle = 60

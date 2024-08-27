@@ -119,12 +119,12 @@ class PuzzleFactory:
             else:
                 counter = 2
                 # print every third
-            while ziti.xcor() <= (self.x_dim - side_length):
+            while ziti.xcor() <= (self.x_dim - side_length/3):
                 if counter % 3 == 0:
                     ziti.forward(side_length)
                 elif counter % 3 == 1:
                     # This creates the center of the next row of hexagons
-                    if not address[1] <= side_length/3:
+                    if address[1] > side_length/3:
                         new_piece = Piece.Piece(piece_area, ziti.pos())
                         new_piece.knob_list["Bottom"] = bottom_edges[0]
                         bottom_edges.pop(0)
@@ -132,11 +132,12 @@ class PuzzleFactory:
                     ziti.forward(side_length)
                 elif counter % 3 == 2:
                     # This draws only the top 2 edges of the puzzle
-                    if ziti.ycor() <= side_length:
+                    if ziti.ycor() <= side_length*4/3:
                         new_knob = copy.deepcopy(new_edge)
                         new_knob.beginning_coord = ziti.pos()
                         new_knob.draw_edge(ziti)
                         new_knob.end_position = ziti.pos()
+                        bottom_edges.append(new_knob)
                         self.pieces[0].knob_list["Top"] = new_knob
                         formatted_id = (round(self.pieces[0].piece_id[0], 2), round(self.pieces[0].piece_id[1], 2))
                         puzzle.piece_lookup[formatted_id] = self.pieces[0]
@@ -150,11 +151,10 @@ class PuzzleFactory:
                         bottom_edges.append(new_knob)
                     # This draws the newest bottom/top edge of the puzzle
                     else:
-                        new_knob = copy.deepcopy(initial_knob)
+                        new_knob = Knob.Knob(side_length=side_length, corner_angle=60, beginning_coord=ziti.pos(), heading=0)
                         # insert kissy circle here so bottom and top do not touch
                         new_knob.beginning_coord = ziti.pos()
                         new_knob.create_knob(ziti)
-                        new_knob.end_position = ziti.pos()
                         # Insert into the bottom of the piece above
                         self.pieces[0].knob_list["Top"] = new_knob
                         formatted_id = (round(self.pieces[0].piece_id[0], 2), round(self.pieces[0].piece_id[1], 2))
@@ -166,54 +166,50 @@ class PuzzleFactory:
                 counter += 1
 
         #TODO this part needs to keep turning the turtle when drawing the columns
-        print(puzzle.piece_lookup)
         column_addresses.pop((0, self.y_dim))
         column_addresses.pop(last_column)
         # This creates the columns in which the pieces get created
         for address in column_addresses.keys():
             # TODO This side currently does not populate in the pieces
             ziti.setpos(address)
-            new_knob = copy.deepcopy(new_edge)
-            new_knob.beginning_coord = ziti.pos()
-            new_knob.heading = column_addresses[address]
-            ziti.seth(column_addresses[address])
+            new_knob = EdgeKnob.EdgeKnob(side_length, address, column_addresses[address], ziti)
+            ziti.seth(new_knob.heading)
             new_knob.draw_edge(ziti)
             new_knob.end_position = ziti.pos()
             for i in range(len(row_addresses)-2):
-                if ziti.heading() == 300:
-                    # This will draw a top left and bottom right
+                new_knob = Knob.Knob(side_length=side_length, corner_angle=60, beginning_coord=ziti.pos(),
+                                         heading=ziti.heading())
+                if ziti.heading() == 240:
+                    new_knob.turn_turtle(ziti, True)
+                    # new_knob.stem[2] = top_left_piece.margin_security("TopLeft", "Top")
+                    top_right_piece = puzzle.piece_lookup[(round(new_knob.beginning_coord[0] + side_length, 2), round(new_knob.beginning_coord[1], 2))]
+                    bottom_left_piece = puzzle.piece_lookup[(round(new_knob.end_position[0] - side_length, 2), round(new_knob.end_position[1], 2))]
+                    new_knob.check_margins(top_right_piece)
+                    new_knob.check_margins(bottom_left_piece)
+                    top_right_piece.knob_list["TopRight"] = new_knob
+                    bottom_left_piece.knob_list["BottomLeft"] = new_knob
+                    new_knob.create_knob(ziti)
+                    new_knob.turn_turtle(ziti, True)
+                else:
                     new_knob.turn_turtle(ziti, False)
-                    new_knob = copy.deepcopy(initial_knob)
-                    new_knob.heading = column_addresses[address]
                     new_knob.beginning_coord = ziti.pos()
                     top_left_piece = puzzle.piece_lookup[(round(new_knob.beginning_coord[0] - side_length, 2), round(new_knob.beginning_coord[1], 2))]
-                    top_left_piece.knob_list["TopLeft"] = new_knob
-                    # new_knob.stem[2] = top_left_piece.margin_security("TopLeft", "Top")
-                    new_knob.create_knob(ziti)
-                    new_knob.end_position = ziti.pos()
                     bottom_right_piece = puzzle.piece_lookup[(round(new_knob.end_position[0] + side_length, 2), round(new_knob.end_position[1], 2))]
-                    bottom_right_piece.knob_list["BottomRight"] = new_knob
-                else:
-                    # This will draw a top right and a bottom left
-                    new_knob.turn_turtle(ziti, True)
-                    new_knob = copy.deepcopy(initial_knob)
-                    new_knob.heading = column_addresses[address]
-                    new_knob.beginning_coord = ziti.pos()
+                    new_knob.check_margins(top_left_piece)
+                    new_knob.check_margins(bottom_right_piece)
                     new_knob.create_knob(ziti)
-                    new_knob.end_position = ziti.pos()
-                    top_right_piece = puzzle.piece_lookup[(round(new_knob.beginning_coord[0] + side_length, 2), round(new_knob.beginning_coord[1], 2))]
-                    top_right_piece.knob_list["TopRight"] = new_knob
-                    bottom_left_piece = puzzle.piece_lookup[(round(new_knob.end_position[0] - side_length, 2), round(new_knob.end_position[1], 2))]
-                    bottom_left_piece.knob_list["BottomLeft"] = new_knob
-            if ziti.heading() == 300:
-                initial_knob.turn_turtle(ziti, False)
-            else:
+                    top_left_piece.knob_list["TopLeft"] = new_knob
+                    bottom_right_piece.knob_list["BottomRight"] = new_knob
+                    new_knob.turn_turtle(ziti, False)
+            if ziti.heading() == 240:
                 initial_knob.turn_turtle(ziti, True)
+            else:
+                initial_knob.turn_turtle(ziti, False)
             # TODO This also is not populated in the pieces
             new_knob = copy.deepcopy(new_edge)
             new_knob.beginning_coord = ziti.pos()
-            initial_knob.draw_edge(ziti)
-            new_knob.end_position = ziti.pos()
+            new_knob.draw_edge(ziti)
+
         if not self.dev:
             ziti.save_as(f'{board_id}.svg')
         else:

@@ -39,16 +39,16 @@ class Board:
         side_length = math.sqrt(math.sqrt(3)) * math.sqrt(self.piece_area_calc() * 2 / 9)
         return side_length
 
-    def draw_column_edge(self, ziti, initial_knob):
+    def draw_column_edge(self, ziti, knob):
         row_addresses = []
         # Creates a list of rows that are used to create bottoms, tops, and centers of the pieces while creating the right edge
-        while ziti.ycor() >= initial_knob.side_length:
-            initial_knob.draw_edge(ziti)
+        while ziti.ycor() >= knob.side_length*2:
+            knob.draw_edge(ziti)
             if ziti.heading() == 240:
-                initial_knob.turn_turtle(ziti, True)
+                knob.turn_turtle(ziti, True)
             else:
-                initial_knob.turn_turtle(ziti, False)
+                knob.turn_turtle(ziti, False)
             row_addresses.append(ziti.pos())
-        initial_knob.draw_edge(ziti)
+        knob.draw_edge(ziti)
         row_addresses.append(ziti.pos())
         return row_addresses
