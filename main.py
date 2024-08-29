@@ -9,12 +9,14 @@
 ####
 
 import PuzzleFactory
+import time
 
 # Environment variables
 # TODO create arguments asking for number of pieces, piece type (trad, hex, squiggly), and Edge T/F
+start = time.time()
 
 #Piece count needs to include an inflation amount for the area on the edge of the board. Either .935 or 1.06 factor
-PIECE_COUNT = 500
+PIECE_COUNT = 150
 # Board is 18 inches by 24 inches
 X_DIMENSION = 2400
 Y_DIMENSION = 1800
@@ -27,4 +29,6 @@ BOARD_ID = 13
 
 puzzle = PuzzleFactory.PuzzleFactory(PIECE_COUNT, X_DIMENSION, Y_DIMENSION, EDGE_YES, DEV)
 board_data = puzzle.make_puzzle(BOARD_ID)
+end = time.time()
+print(f'Puzzle {BOARD_ID}.svg has been created after {(end-start)/60} minutes.')
 # TODO put board data into a database that holds all pieces, knobs, and board configurations

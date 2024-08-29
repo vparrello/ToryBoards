@@ -23,6 +23,8 @@ class EdgeKnob:
         self.heading = heading
         self.circle_center = None
         self.end_position = beginning_coord
+        self.radius = 0
+        self.stem = [self.side_length, 0, 0]
     
     def draw_edge(self, turtle):
         turtle.down()

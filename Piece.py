@@ -16,14 +16,13 @@ class Piece:
     def __init__(self, piece_area, piece_id) -> None:
         self.piece_id = piece_id
         self.piece_area = piece_area
-        self.knob_margin = 10
         self.knob_list = {
             "Top":"",
             "Bottom":"",
-            "TopLeft":"",
-            "TopRight":"",
-            "BottomLeft":"",
-            "BottomRight":""
+            "TopEast":"",
+            "TopWest":"",
+            "BottomEast":"",
+            "BottomWest":""
         }
 
     def hex_side_calc(self):

@@ -66,7 +66,7 @@ class Knob:
         self.populate_random()
 
     def populate_random(self):
-        # Initialize Stem distances and stem height
+        # Initialize Stem distances and stem height and end position
         self.stem[0] = random.randint(5, int(.6*self.side_length))
         stem_leftovers = self.side_length - self.stem[0]
         self.radius = random.randint(5, int(.33*stem_leftovers))
@@ -78,6 +78,18 @@ class Knob:
         self.circle_center = (self.stem[0] + (self.radius/2), self.stem[2] + (self.radius * (math.sqrt(3)/2)))
         # Distance to closest edge of the circle
         # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
+        if self.heading == 300:
+            self.end_position = ((self.beginning_coord[0] + self.side_length/2), (self.beginning_coord[1] - self.side_length*(math.sqrt(3)/2)))
+        elif self.heading == 240:
+            self.end_position = ((self.beginning_coord[0] - self.side_length/2), (self.beginning_coord[1] - self.side_length*(math.sqrt(3)/2)))
+        else:
+            self.end_position = ((self.beginning_coord[0] + self.side_length), self.beginning_coord[1])
+        reflect_randomizer = random.randint(0, 3)
+        if reflect_randomizer % 2 == 0:
+            self.reflect_flag = True
+            self.stem[2] = -self.stem[2]
+        else:
+            self.reflect_flag = False
         return
 
     def create_knob(self, turtle):
@@ -85,8 +97,12 @@ class Knob:
         # If BottomSomething, check against bottom of same piece for edges
         # If TopSomething, check against same side bottom and top before allowing entry
         self.draw_side(turtle)
-        reflect_flag = self.draw_stem(turtle)
-        self.draw_nub(turtle, reflect_flag)
+        self.draw_stem(turtle)
+        self.draw_nub(turtle)
+        if self.heading == 240:
+            self.turn_turtle(turtle, True)
+        elif self.heading == 300:
+            self.turn_turtle(turtle, False)
         return
 
     def draw_side(self, turtle):
@@ -107,12 +123,6 @@ class Knob:
 
     def draw_stem(self, turtle):
         # This variable determines how long the stem will be for the following knob
-        reflect_randomizer = random.randint(0, 100)
-        if reflect_randomizer % 2 == 0:
-            reflect_flag = True
-            self.stem[2] = -self.stem[2]
-        else:
-            reflect_flag = False
         # Initialize the first side of the knob
         turtle.up()
         turtle.goto(self.stem[3])
@@ -127,20 +137,20 @@ class Knob:
         turtle.forward(self.stem[2])
         self.nub.append(turtle.pos())
         turtle.up()
-        return reflect_flag
+        return
 
-    def draw_nub(self, turtle, reflect_flag):
+    def draw_nub(self, turtle):
         # This variable determines what type of shape the nub is drawn in.
         # Adjust the end of this one to be bigger to get closer to a circle
         nub_sides = random.randint(3, 2000)
-        # Up or right
-        if reflect_flag:
-            turtle.goto(self.nub[1])
-            turtle.right(120)
         # Down or left
+        if self.reflect_flag:
+            turtle.right(120)
+        # Up or right
         else:
             turtle.goto(self.nub[0])
             turtle.left(60)
+            # self.radius = -self.radius
         turtle.down()
         turtle.circle(-self.radius, extent=300, steps=nub_sides)
         turtle.up()
@@ -160,8 +170,10 @@ class Knob:
         validation = (self.stem[0] + (self.radius/2) - (other_knob.stem[0]/2) - (7*other_knob.radius/4) - (other_knob.stem[2]*(math.sqrt(3)/2)) + (self.side_length/2))
         while validation < 10:
             self.populate_random()
+            validation = (self.stem[0] + (self.radius / 2) - (other_knob.stem[0] / 2) - (7 * other_knob.radius / 4) - (
+                        other_knob.stem[2] * (math.sqrt(3) / 2)) + (self.side_length / 2))
         # Find the center of the circle
-        # (q1 + r/2, h + r sqrt3/2)
+        # (q1 + r/2, h + r sqrt3/2)O
         # Distance to closest edge of the circle
         # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
         return
