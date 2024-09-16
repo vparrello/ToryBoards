@@ -14,7 +14,7 @@ import Piece
 import Knob
 import EdgeKnob
 import turtle
-from svg_turtle import SvgTurtle
+# from svg_turtle import SvgTurtle
 
 
 class PuzzleFactory:
@@ -109,7 +109,7 @@ class PuzzleFactory:
         puzzle.draw_column_edge(ziti, new_edge)
         # At this point we have initialized the bottom and side edges
         # This prints out all of the rows
-        initial_knob = Knob.Knob(side_length=side_length, corner_angle=60, beginning_coord=ziti.pos(), heading=0)
+
         for address in row_addresses:
             ziti.up()
             ziti.setpos(address)
@@ -119,7 +119,7 @@ class PuzzleFactory:
             else:
                 counter = 2
                 # print every third
-            while ziti.xcor() <= (self.x_dim - side_length/3):
+            while ziti.xcor() < (self.x_dim - side_length):
                 if counter % 3 == 0:
                     ziti.forward(side_length)
                 elif counter % 3 == 1:
@@ -133,8 +133,7 @@ class PuzzleFactory:
                 elif counter % 3 == 2:
                     # This draws only the top 2 edges of the puzzle
                     if ziti.ycor() <= side_length*4/3:
-                        new_knob = copy.deepcopy(new_edge)
-                        new_knob.beginning_coord = ziti.pos()
+                        new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
                         new_knob.draw_edge(ziti)
                         new_knob.end_position = ziti.pos()
                         bottom_edges.append(new_knob)
@@ -144,8 +143,7 @@ class PuzzleFactory:
                         self.pieces.pop(0)
                     # This draws the bottom 2 edges of the puzzle
                     elif ziti.ycor() > (self.y_dim - side_length):
-                        new_knob = copy.deepcopy(new_edge)
-                        new_knob.beginning_coord = ziti.pos()
+                        new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
                         new_knob.draw_edge(ziti)
                         new_knob.end_position = ziti.pos()
                         bottom_edges.append(new_knob)
@@ -183,7 +181,7 @@ class PuzzleFactory:
                 if ziti.heading() == 300:
                     top_east_piece = puzzle.piece_lookup[(round(new_knob.beginning_coord[0] + side_length, 2), round(new_knob.beginning_coord[1], 2))]
                     bottom_west_piece = puzzle.piece_lookup[(round(new_knob.end_position[0] - side_length, 2), round(new_knob.end_position[1], 2))]
-                    # TODO this needs to check against the previous piece as well. Fortunately it is captured
+                    # TODO this needs to check against the previous piece as well. Fortunately it is captured in the pieces above
                     # True is up and
                     # This means True Bottom, and west pieces are inside
                     # False is down and left
@@ -196,6 +194,7 @@ class PuzzleFactory:
 
                     bottom_west_piece.knob_list["BottomWest"] = new_knob
                     top_east_piece.knob_list["TopEast"] = new_knob
+
 
                 else:
                     top_west_piece = puzzle.piece_lookup[
