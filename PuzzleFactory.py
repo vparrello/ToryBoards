@@ -119,7 +119,7 @@ class PuzzleFactory:
             else:
                 counter = 2
                 # print every third
-            while ziti.xcor() < (self.x_dim - side_length):
+            while ziti.xcor() < last_column[0]:
                 if counter % 3 == 0:
                     ziti.forward(side_length)
                 elif counter % 3 == 1:
