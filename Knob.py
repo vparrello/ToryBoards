@@ -136,7 +136,8 @@ class Knob:
         # Initialize the first side of the knob
         turtle.up()
         turtle.goto(self.stem[3])
-        turtle.left(90)
+
+        turtle.circle(90, 90)  # Quarter-circle turn
         turtle.down()
         turtle.forward(self.stem[2])
         self.nub.append(turtle.pos())
@@ -165,21 +166,21 @@ class Knob:
         corner_angle = 60
         if reflect:
             corner_angle = -corner_angle
-        turtle.right(corner_angle)
+        turtle.circle(90, corner_angle)
         return
 
     def check_margins(self, other_knob):
         self.populate_random()
-        margin = math.sqrt(
-            (self.stem[0] + self.radius/2 - other_knob.stem[0] - other_knob.radius/2)**2 +
-            (abs(self.stem[2])+ self.radius - abs(other_knob.stem[2]) - other_knob.radius)**2
-        ) - self.radius - other_knob.radius
-        while margin < self.side_length*.05:
-            print(f'Margin is too small at: {margin}')
+                
+        # Calculate the distance between the two centers
+        distance = math.sqrt((self.circle_center[0] - other_knob.circle_center[0])**2 + (self.circle_center[1] - other_knob.circle_center[1])**2)
+        
+        # Calculate the required distance (sum of radii + margin)
+        required_distance = (self.radius + other_knob.radius + 10)  # 10 pixels margin
+        
+        # If the distance is less than the required distance, re-populate random values
+        while distance < required_distance:
             self.populate_random()
-            margin = math.sqrt(
-                (self.stem[0] + self.radius/2 - other_knob.stem[0] - other_knob.radius/2)**2 +
-                (self.stem[2] + self.radius - other_knob.stem[2] - other_knob.radius)**2
-            ) - other_knob.radius
-        print(f'Margin is successful at: {margin}')
+            distance = math.sqrt((self.circle_center[0] - other_knob.circle_center[0])**2 + (self.circle_center[1] - other_knob.circle_center[1])**2)
+        
         return
