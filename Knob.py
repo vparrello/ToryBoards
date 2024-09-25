@@ -66,15 +66,15 @@ class Knob:
 
     def populate_random(self):
         # Initialize Stem distances and stem height and end position
-        min_stem_0 = max(1, int(0.15 * self.side_length))
-        self.stem[0] = random.randint(min_stem_0, int(0.6 * self.side_length))
+        min_stem_0 = max(1, int(0.25 * self.side_length))  # Increased minimum to 25%
+        self.stem[0] = random.randint(min_stem_0, int(0.5 * self.side_length))  # Decreased max to 50%
         stem_leftovers = self.side_length - self.stem[0]
-        min_radius = max(1, int(0.15 * stem_leftovers))
-        self.radius = random.randint(min_radius, int(0.33 * stem_leftovers))
+        min_radius = max(1, int(0.2 * stem_leftovers))  # Increased minimum to 20%
+        self.radius = random.randint(min_radius, int(0.4 * stem_leftovers))  # Increased max to 40%
         self.stem[1] = stem_leftovers - self.radius
         # This is stem height
-        min_stem_2 = max(1, int(0.05 * self.side_length))
-        self.stem[2] = random.randint(min_stem_2, int(0.30 * self.side_length))
+        min_stem_2 = max(1, int(0.1 * self.side_length))  # Increased minimum to 10%
+        self.stem[2] = random.randint(min_stem_2, int(0.25 * self.side_length))  # Decreased max to 25%
 
         # Distance to closest edge of the circle
         # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
@@ -92,6 +92,8 @@ class Knob:
             self.stem[2] = -abs(self.stem[2])
         else:
             self.stem[2] = abs(self.stem[2])
+
+        self.circle_center = (self.beginning_coord[0] + self.stem[0] + (self.radius/2), self.beginning_coord[1] - self.stem[2] - (self.radius*math.sqrt(3)/2))
         return
 
     def create_knob(self, turtle):
@@ -137,7 +139,7 @@ class Knob:
         turtle.up()
         turtle.goto(self.stem[3])
 
-        turtle.circle(90, 90)  # Quarter-circle turn
+        turtle.left(90)  # Quarter-circle turn
         turtle.down()
         turtle.forward(self.stem[2])
         self.nub.append(turtle.pos())
@@ -166,7 +168,7 @@ class Knob:
         corner_angle = 60
         if reflect:
             corner_angle = -corner_angle
-        turtle.circle(90, corner_angle)
+        turtle.left(corner_angle)
         return
 
     def check_margins(self, other_knob):

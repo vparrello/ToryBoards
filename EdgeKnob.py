@@ -21,7 +21,7 @@ class EdgeKnob:
         self.side_length = side_length
         self.beginning_coord = beginning_coord
         self.heading = heading
-        self.circle_center = None
+        self.circle_center = (beginning_coord[0] + side_length/2, beginning_coord[1] - side_length/2)
         self.end_position = beginning_coord
         self.radius = 0
         self.stem = [self.side_length, 0, 0]
