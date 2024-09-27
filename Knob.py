@@ -58,22 +58,28 @@ class Knob:
         self.end_position = beginning_coord
         self.heading = heading
         self.radius = 0
+        self.reflect_flag = random.choice([True, False])
         # Turtle Start position, turtle end position
         self.nub = []
         # First distance, third distance, stem height, start coord, end coord
         self.stem = [self.side_length, 0, 0]
-        self.populate_random()
+        self.populate_random(0)
 
-    def populate_random(self):
+    def populate_random(self, radius_max):
         # Initialize Stem distances and stem height and end position
-        min_stem_0 = max(1, int(0.25 * self.side_length))  # Increased minimum to 25%
-        self.stem[0] = random.randint(min_stem_0, int(0.5 * self.side_length))  # Decreased max to 50%
+        min_stem_0 = max(1, int(0.15 * self.side_length))
+        self.stem[0] = random.randint(min_stem_0, int(0.5 * self.side_length))
         stem_leftovers = self.side_length - self.stem[0]
-        min_radius = max(1, int(0.2 * stem_leftovers))  # Increased minimum to 20%
-        self.radius = random.randint(min_radius, int(0.4 * stem_leftovers))  # Increased max to 40%
+        min_radius = max(1, int(0.15 * stem_leftovers))
+        # Account for Max Radius equation in margin validation function
+        if radius_max == 0:
+            self.radius = random.randint(min_radius, int(0.3 * stem_leftovers))
+        else:
+            radius_max = min(radius_max, int(0.3 * stem_leftovers))
+            self.radius = random.randint(min_radius, radius_max)
         self.stem[1] = stem_leftovers - self.radius
         # This is stem height
-        min_stem_2 = max(1, int(0.1 * self.side_length))  # Increased minimum to 10%
+        min_stem_2 = max(1, int(0.15 * self.side_length))  # Increased minimum to 10%
         self.stem[2] = random.randint(min_stem_2, int(0.25 * self.side_length))  # Decreased max to 25%
 
         # Distance to closest edge of the circle
@@ -86,14 +92,60 @@ class Knob:
 
         else:
             self.end_position = ((self.beginning_coord[0] + self.side_length), self.beginning_coord[1])
-
-        self.reflect_flag = random.choice([True, False])
+        # TODO Refactor this to be shorter
         if self.reflect_flag:
             self.stem[2] = -abs(self.stem[2])
+            if self.heading == 0:
+                self.circle_center = (self.beginning_coord[0] + self.stem[0] + (self.radius / 2),
+                                  self.beginning_coord[1] - abs(self.stem[2]) - (self.radius * math.sqrt(3) / 2))
+            elif self.heading == 240:
+                adjacent = self.stem[0] + (self.radius/2)
+                opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
+                hypottenous = math.sqrt(adjacent**2 + opposite**2)
+                inner_angle = math.degrees(math.acos(adjacent/hypottenous))
+                angle_to_axis = math.radians(60 - inner_angle)
+                ycor = math.sin(angle_to_axis) * hypottenous
+                xcor = math.cos(angle_to_axis) * hypottenous
+                self.circle_center = (self.beginning_coord[0] - xcor, self.beginning_coord[1] - ycor)
+            elif self.heading == 300:
+                adjacent = self.stem[0] + (self.radius/2)
+                opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
+                hypottenous = math.sqrt(adjacent**2 + opposite**2)
+                inner_angle = math.degrees(math.acos(adjacent/hypottenous))
+                angle_to_axis = math.radians(abs(30 - inner_angle))
+                if inner_angle < 30:
+                    xcor = -(math.sin(angle_to_axis)) * hypottenous
+                else:
+                    xcor = math.sin(angle_to_axis) * hypottenous
+                ycor = math.cos(angle_to_axis) * hypottenous
+                self.circle_center = (self.beginning_coord[0] - xcor, self.beginning_coord[1] - ycor)
         else:
             self.stem[2] = abs(self.stem[2])
+            if self.heading == 0:
+                self.circle_center = (self.beginning_coord[0] + self.stem[0] + (self.radius / 2),
+                                      self.beginning_coord[1] + self.stem[2] + (self.radius * math.sqrt(3) / 2))
+            elif self.heading == 240:
+                adjacent = self.stem[0] + (self.radius/2)
+                opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
+                hypottenous = math.sqrt(adjacent**2 + opposite**2)
+                inner_angle = math.degrees(math.acos(adjacent/hypottenous))
+                angle_to_axis = math.radians(abs(30 - inner_angle))
+                if inner_angle > 30:
+                    xcor = -(math.sin(angle_to_axis)) * hypottenous
+                else:
+                    xcor = math.sin(angle_to_axis) * hypottenous
+                ycor = math.cos(angle_to_axis) * hypottenous
+                self.circle_center = (self.beginning_coord[0] - xcor, self.beginning_coord[1] - ycor)
+            else:
+                adjacent = self.stem[0] + (self.radius/2)
+                opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
+                hypottenous = math.sqrt(adjacent**2 + opposite**2)
+                inner_angle = math.degrees(math.acos(adjacent/hypottenous))
+                angle_to_axis = math.radians(60 - inner_angle)
+                ycor = math.sin(angle_to_axis) * hypottenous
+                xcor = math.cos(angle_to_axis) * hypottenous
+                self.circle_center = (self.beginning_coord[0] + xcor, self.beginning_coord[1] - ycor)
 
-        self.circle_center = (self.beginning_coord[0] + self.stem[0] + (self.radius/2), self.beginning_coord[1] - self.stem[2] - (self.radius*math.sqrt(3)/2))
         return
 
     def create_knob(self, turtle):
@@ -168,21 +220,35 @@ class Knob:
         corner_angle = 60
         if reflect:
             corner_angle = -corner_angle
-        turtle.left(corner_angle)
+        turtle.right(corner_angle)
         return
 
-    def check_margins(self, other_knob):
-        self.populate_random()
-                
+    def check_margins(self, other_knob, backup_knob):
         # Calculate the distance between the two centers
-        distance = math.sqrt((self.circle_center[0] - other_knob.circle_center[0])**2 + (self.circle_center[1] - other_knob.circle_center[1])**2)
-        
+        distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
+                             ((self.circle_center[1] - other_knob.circle_center[1])**2))
         # Calculate the required distance (sum of radii + margin)
-        required_distance = (self.radius + other_knob.radius + 10)  # 10 pixels margin
-        
+        required_distance = (self.radius + other_knob.radius + 15)  # 15 pixels margin
+        max_radius_allowed = other_knob.radius + 15
+        if required_distance > self.side_length/2:
+            self.reflect_flag = not self.reflect_flag
+            self.populate_random(max_radius_allowed)
+            third_knob = other_knob
+            other_knob = backup_knob
+            backup_knob = third_knob
+            distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0]) ** 2) +
+                                 ((self.circle_center[1] - other_knob.circle_center[1]) ** 2))
+            required_distance = (self.radius + other_knob.radius + 15)
+            max_radius_allowed = other_knob.radius + 15
+            print("I have flipped")
+        counter = 0
         # If the distance is less than the required distance, re-populate random values
         while distance < required_distance:
-            self.populate_random()
-            distance = math.sqrt((self.circle_center[0] - other_knob.circle_center[0])**2 + (self.circle_center[1] - other_knob.circle_center[1])**2)
-        
+            self.populate_random(max_radius_allowed)
+            distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
+                                 ((self.circle_center[1] - other_knob.circle_center[1])**2))
+            required_distance = (self.radius + other_knob.radius + 15)  # 15 pixels margin
+            max_radius_allowed = other_knob.radius + 15
+        print(f"Distance: {distance} > Required Distance: {required_distance}\n"
+              f"Other Radius: {other_knob.radius}  My Radius: {self.radius}")
         return

@@ -23,7 +23,7 @@ Y_DIMENSION = 1800
 # Edge pieces toggle. Currently does nothing
 EDGE_YES = True
 # DEV true means traditional turtle where Dev False means svg file creation.
-DEV = True
+DEV = False
 # This determines what the file is saved as
 BOARD_ID = 13
 

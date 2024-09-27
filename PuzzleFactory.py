@@ -14,7 +14,7 @@ import Piece
 import Knob
 import EdgeKnob
 import turtle
-# from svg_turtle import SvgTurtle
+from svg_turtle import SvgTurtle
 
 
 class PuzzleFactory:
@@ -187,28 +187,28 @@ class PuzzleFactory:
                     # False is down and left
                     # Falst top and east pieces are inside
                     if new_knob.reflect_flag:
-                        new_knob.check_margins(bottom_west_piece.knob_list["Bottom"])
+                        new_knob.check_margins(bottom_west_piece.knob_list["Bottom"], top_east_piece.knob_list["Top"])
+                        print("This checks Bottom and 300 True\n")
                     else:
-                        new_knob.check_margins(top_east_piece.knob_list["Top"])
+                        new_knob.check_margins(top_east_piece.knob_list["Top"], bottom_west_piece.knob_list["Bottom"])
+                        print("This checks Top and 300 False\n")
                     new_knob.create_knob(ziti)
-
                     bottom_west_piece.knob_list["BottomWest"] = new_knob
                     top_east_piece.knob_list["TopEast"] = new_knob
-
 
                 else:
                     top_west_piece = puzzle.piece_lookup[
                         (round(new_knob.beginning_coord[0] - side_length, 2), round(new_knob.beginning_coord[1], 2))]
                     bottom_east_piece = puzzle.piece_lookup[
                         (round(new_knob.end_position[0] + side_length, 2), round(new_knob.end_position[1], 2))]
-
                     if new_knob.reflect_flag:
-                        new_knob.check_margins(bottom_east_piece.knob_list["Bottom"])
+                        new_knob.check_margins(top_west_piece.knob_list["Top"], bottom_east_piece.knob_list["Bottom"])
+                        print("This checks Top and 240 True\n")
                     else:
-                        new_knob.check_margins(top_west_piece.knob_list["Top"])
+                        new_knob.check_margins(bottom_east_piece.knob_list["Bottom"],top_west_piece.knob_list["Top"])
+                        print("This checks Bottom and 240 False\n")
 
                     new_knob.create_knob(ziti)
-
                     top_west_piece.knob_list["TopWest"] = new_knob
                     bottom_east_piece.knob_list["BottomEast"] = new_knob
 
