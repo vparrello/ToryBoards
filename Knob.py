@@ -76,7 +76,7 @@ class Knob:
             self.radius = random.randint(min_radius, int(0.3 * stem_leftovers))
         else:
             radius_max = min(radius_max, int(0.3 * stem_leftovers))
-            self.radius = random.randint(min_radius, radius_max)
+            self.radius = random.randint(int(min_radius), int(radius_max) )
         self.stem[1] = stem_leftovers - self.radius
         # This is stem height
         min_stem_2 = max(1, int(0.15 * self.side_length))  # Increased minimum to 10%
@@ -225,11 +225,12 @@ class Knob:
 
     def check_margins(self, other_knob, backup_knob):
         # Calculate the distance between the two centers
+        margin = min(self.side_length * 0.1, 10)
         distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
                              ((self.circle_center[1] - other_knob.circle_center[1])**2))
         # Calculate the required distance (sum of radii + margin)
-        required_distance = (self.radius + other_knob.radius + 15)  # 15 pixels margin
-        max_radius_allowed = other_knob.radius + 15
+        required_distance = (self.radius + other_knob.radius + margin)  # 15 pixels margin
+        max_radius_allowed = other_knob.radius + margin
         if required_distance > self.side_length/2:
             self.reflect_flag = not self.reflect_flag
             self.populate_random(max_radius_allowed)
@@ -238,8 +239,8 @@ class Knob:
             backup_knob = third_knob
             distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0]) ** 2) +
                                  ((self.circle_center[1] - other_knob.circle_center[1]) ** 2))
-            required_distance = (self.radius + other_knob.radius + 15)
-            max_radius_allowed = other_knob.radius + 15
+            required_distance = (self.radius + other_knob.radius + margin)
+            max_radius_allowed = other_knob.radius + margin
             print("I have flipped")
         counter = 0
         # If the distance is less than the required distance, re-populate random values
@@ -247,8 +248,8 @@ class Knob:
             self.populate_random(max_radius_allowed)
             distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
                                  ((self.circle_center[1] - other_knob.circle_center[1])**2))
-            required_distance = (self.radius + other_knob.radius + 15)  # 15 pixels margin
-            max_radius_allowed = other_knob.radius + 15
+            required_distance = (self.radius + other_knob.radius + margin)  # 15 pixels margin
+            max_radius_allowed = other_knob.radius + margin
         print(f"Distance: {distance} > Required Distance: {required_distance}\n"
               f"Other Radius: {other_knob.radius}  My Radius: {self.radius}")
         return

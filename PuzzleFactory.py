@@ -93,6 +93,7 @@ class PuzzleFactory:
                     # Draws the bottom edge of the columns
                     ziti.down()
         ziti.up()
+
         new_edge = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
         # Initialize the turtle to draw the columns edges.
         ziti.setpos(0, self.y_dim)
@@ -100,7 +101,7 @@ class PuzzleFactory:
         # Creates a list of rows that are used to create bottoms, tops, and centers of the pieces.
         # Also draws right edge
         row_addresses = puzzle.draw_column_edge(ziti, new_edge)
-
+        print(f"Row Addresses:{row_addresses}")
         # Attach those knobs to the corresponding center pieces
         last_column = list(column_addresses.keys())[-1]
         ziti.setpos(last_column)
@@ -109,8 +110,9 @@ class PuzzleFactory:
         puzzle.draw_column_edge(ziti, new_edge)
         # At this point we have initialized the bottom and side edges
         # This prints out all of the rows
-
+        print("Bottom and side edges created")
         for address in row_addresses:
+            print(f"Creating row starting at {address}")
             ziti.up()
             ziti.setpos(address)
             ziti.seth(0)
@@ -161,11 +163,13 @@ class PuzzleFactory:
                         bottom_edges.append(new_knob)
                         # Insert the piece into piece lookup in Board (puzzle)
                 counter += 1
-
+        print("Rows are completed")
         column_addresses.pop((0, self.y_dim))
         column_addresses.pop(last_column)
         # This creates the columns in which the pieces get created
+        print(f"Column Addresses: {column_addresses}")
         for address in column_addresses.keys():
+            print(f"Starting column at {address}")
             # TODO This side currently does not populate in the pieces
             ziti.setpos(address)
             new_knob = EdgeKnob.EdgeKnob(side_length, address, column_addresses[address], ziti)
@@ -188,10 +192,8 @@ class PuzzleFactory:
                     # Falst top and east pieces are inside
                     if new_knob.reflect_flag:
                         new_knob.check_margins(bottom_west_piece.knob_list["Bottom"], top_east_piece.knob_list["Top"])
-                        print("This checks Bottom and 300 True\n")
                     else:
                         new_knob.check_margins(top_east_piece.knob_list["Top"], bottom_west_piece.knob_list["Bottom"])
-                        print("This checks Top and 300 False\n")
                     new_knob.create_knob(ziti)
                     bottom_west_piece.knob_list["BottomWest"] = new_knob
                     top_east_piece.knob_list["TopEast"] = new_knob
@@ -203,10 +205,8 @@ class PuzzleFactory:
                         (round(new_knob.end_position[0] + side_length, 2), round(new_knob.end_position[1], 2))]
                     if new_knob.reflect_flag:
                         new_knob.check_margins(top_west_piece.knob_list["Top"], bottom_east_piece.knob_list["Bottom"])
-                        print("This checks Top and 240 True\n")
                     else:
                         new_knob.check_margins(bottom_east_piece.knob_list["Bottom"],top_west_piece.knob_list["Top"])
-                        print("This checks Bottom and 240 False\n")
 
                     new_knob.create_knob(ziti)
                     top_west_piece.knob_list["TopWest"] = new_knob
