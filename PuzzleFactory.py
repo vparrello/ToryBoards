@@ -101,13 +101,16 @@ class PuzzleFactory:
         # Creates a list of rows that are used to create bottoms, tops, and centers of the pieces.
         # Also draws right edge
         row_addresses = puzzle.draw_column_edge(ziti, new_edge)
-        print(f"Row Addresses:{row_addresses}")
+        first_row = row_addresses[0]
+        row_addresses.pop(0)
         # Attach those knobs to the corresponding center pieces
-        last_column = list(column_addresses.keys())[-1]
-        ziti.setpos(last_column)
-        ziti.seth(column_addresses[last_column])
+        column_list = list(column_addresses.keys())
+        ziti.setpos(column_list[-1])
+        ziti.seth(column_addresses[(column_list[-1])])
         # This draws the left edge of the puzzle.
-        puzzle.draw_column_edge(ziti, new_edge)
+        end_column_addresses = puzzle.draw_column_edge(ziti, new_edge)
+        last_y = max(row_addresses[-2][1], row_addresses[-1][1])
+        last_x = min(end_column_addresses[-2][0], end_column_addresses[-1][0])
         # At this point we have initialized the bottom and side edges
         # This prints out all of the rows
         print("Bottom and side edges created")
@@ -121,12 +124,12 @@ class PuzzleFactory:
             else:
                 counter = 2
                 # print every third
-            while ziti.xcor() < last_column[0]:
+            while ziti.xcor() < last_x:
                 if counter % 3 == 0:
                     ziti.forward(side_length)
                 elif counter % 3 == 1:
                     # This creates the center of the next row of hexagons
-                    if address[1] > side_length/3:
+                    if address[1] > side_length/3: #This if skips the first row
                         new_piece = Piece.Piece(piece_area, ziti.pos())
                         new_piece.knob_list["Bottom"] = bottom_edges[0]
                         bottom_edges.pop(0)
@@ -134,7 +137,7 @@ class PuzzleFactory:
                     ziti.forward(side_length)
                 elif counter % 3 == 2:
                     # This draws only the top 2 edges of the puzzle
-                    if ziti.ycor() <= side_length*4/3:
+                    if int(ziti.ycor()) <= int(last_y):
                         new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
                         new_knob.draw_edge(ziti)
                         new_knob.end_position = ziti.pos()
@@ -144,7 +147,7 @@ class PuzzleFactory:
                         puzzle.piece_lookup[formatted_id] = self.pieces[0]
                         self.pieces.pop(0)
                     # This draws the bottom 2 edges of the puzzle
-                    elif ziti.ycor() > (self.y_dim - side_length):
+                    elif ziti.ycor() == row_addresses[0][1] or ziti.ycor() == first_row: # This is the first two row_addresses[0][1] and row_addresses[1][1]
                         new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
                         new_knob.draw_edge(ziti)
                         new_knob.end_position = ziti.pos()
@@ -165,35 +168,38 @@ class PuzzleFactory:
                 counter += 1
         print("Rows are completed")
         column_addresses.pop((0, self.y_dim))
-        column_addresses.pop(last_column)
+        column_addresses.pop(column_list[-1])
         # This creates the columns in which the pieces get created
         print(f"Column Addresses: {column_addresses}")
         for address in column_addresses.keys():
             print(f"Starting column at {address}")
-            # TODO This side currently does not populate in the pieces
             ziti.setpos(address)
             new_knob = EdgeKnob.EdgeKnob(side_length, address, column_addresses[address], ziti)
             ziti.setheading(new_knob.heading)
             new_knob.draw_edge(ziti)
             new_knob.end_position = ziti.pos()
             if column_addresses[address] == 240:
+                #Find the piece that fills a bottom east
+                bottom_east_piece = puzzle.piece_lookup[
+                    (round(new_knob.end_position[0] + side_length, 2), round(new_knob.end_position[1], 2))]
+                bottom_east_piece.knob_list["BottomEast"] = new_knob
                 new_knob.turn_turtle(ziti, True)
             else:
+                # Piece is the bottom west
+                bottom_west_piece = puzzle.piece_lookup[
+                    (round(new_knob.end_position[0] - side_length, 2), round(new_knob.end_position[1], 2))]
+                bottom_west_piece.knob_list["BottomWest"] = new_knob
                 new_knob.turn_turtle(ziti, False)
             for i in range(len(row_addresses)-2):
                 new_knob = Knob.Knob(side_length=side_length, corner_angle=60, beginning_coord=ziti.pos(), heading=ziti.heading())
                 if ziti.heading() == 300:
                     top_east_piece = puzzle.piece_lookup[(round(new_knob.beginning_coord[0] + side_length, 2), round(new_knob.beginning_coord[1], 2))]
                     bottom_west_piece = puzzle.piece_lookup[(round(new_knob.end_position[0] - side_length, 2), round(new_knob.end_position[1], 2))]
-                    # TODO this needs to check against the previous piece as well. Fortunately it is captured in the pieces above
-                    # True is up and
-                    # This means True Bottom, and west pieces are inside
-                    # False is down and left
-                    # Falst top and east pieces are inside
                     if new_knob.reflect_flag:
                         new_knob.check_margins(bottom_west_piece.knob_list["Bottom"], top_east_piece.knob_list["Top"])
                     else:
-                        new_knob.check_margins(top_east_piece.knob_list["Top"], bottom_west_piece.knob_list["Bottom"])
+                        max_radius = new_knob.check_margins(top_east_piece.knob_list["Top"], bottom_west_piece.knob_list["Bottom"])
+                        new_knob.check_margins_column(top_east_piece.knob_list["BottomEast"], max_radius)
                     new_knob.create_knob(ziti)
                     bottom_west_piece.knob_list["BottomWest"] = new_knob
                     top_east_piece.knob_list["TopEast"] = new_knob
@@ -204,17 +210,24 @@ class PuzzleFactory:
                     bottom_east_piece = puzzle.piece_lookup[
                         (round(new_knob.end_position[0] + side_length, 2), round(new_knob.end_position[1], 2))]
                     if new_knob.reflect_flag:
-                        new_knob.check_margins(top_west_piece.knob_list["Top"], bottom_east_piece.knob_list["Bottom"])
+                        max_radius = new_knob.check_margins(top_west_piece.knob_list["Top"], bottom_east_piece.knob_list["Bottom"])
+                        new_knob.check_margins_column(top_west_piece.knob_list["BottomWest"], max_radius)
                     else:
-                        new_knob.check_margins(bottom_east_piece.knob_list["Bottom"],top_west_piece.knob_list["Top"])
+                        new_knob.check_margins(bottom_east_piece.knob_list["Bottom"], top_west_piece.knob_list["Top"])
 
                     new_knob.create_knob(ziti)
                     top_west_piece.knob_list["TopWest"] = new_knob
                     bottom_east_piece.knob_list["BottomEast"] = new_knob
 
-            # TODO This also is not populated in the pieces
-            new_knob = copy.deepcopy(new_edge)
-            new_knob.beginning_coord = ziti.pos()
+            new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
+            if ziti.heading() == 240:
+                top_west_piece = puzzle.piece_lookup[
+                    (round(new_knob.beginning_coord[0] - side_length, 2), round(new_knob.beginning_coord[1], 2))]
+                top_west_piece.knob_list["TopWest"] = new_knob
+            else:
+                top_east_piece = puzzle.piece_lookup[
+                    (round(new_knob.beginning_coord[0] + side_length, 2), round(new_knob.beginning_coord[1], 2))]
+                top_east_piece.knob_list["TopEast"] = new_knob
             new_knob.draw_edge(ziti)
 
         if not self.dev:

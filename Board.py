@@ -28,10 +28,12 @@ class Board:
 
     def column_count(self, knob_side_length):
         self.columns = int(self.width / knob_side_length)
+        print(f"Number of columns: {self.columns}")
         return self.columns
 
     def row_count(self, knob_side_length):
          self.rows = int(self.height / knob_side_length)
+         print(f"Number of rows: {self.rows}")
          return self.rows
 
     def hex_side_calc(self):
@@ -41,6 +43,7 @@ class Board:
 
     def draw_column_edge(self, ziti, knob):
         row_addresses = []
+        row_addresses.append(ziti.pos())
         # Creates a list of rows that are used to create bottoms, tops, and centers of the pieces while creating the right edge
         while ziti.ycor() >= knob.side_length*2:
             knob.draw_edge(ziti)

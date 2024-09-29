@@ -75,7 +75,7 @@ class Knob:
         if radius_max == 0:
             self.radius = random.randint(min_radius, int(0.3 * stem_leftovers))
         else:
-            radius_max = min(radius_max, int(0.3 * stem_leftovers))
+            radius_max = min(radius_max, int(0.6 * stem_leftovers))
             self.radius = random.randint(int(min_radius), int(radius_max) )
         self.stem[1] = stem_leftovers - self.radius
         # This is stem height
@@ -225,7 +225,7 @@ class Knob:
 
     def check_margins(self, other_knob, backup_knob):
         # Calculate the distance between the two centers
-        margin = min(self.side_length * 0.1, 10)
+        margin = min(self.side_length * 0.1, 15)
         distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
                              ((self.circle_center[1] - other_knob.circle_center[1])**2))
         # Calculate the required distance (sum of radii + margin)
@@ -250,6 +250,28 @@ class Knob:
                                  ((self.circle_center[1] - other_knob.circle_center[1])**2))
             required_distance = (self.radius + other_knob.radius + margin)  # 15 pixels margin
             max_radius_allowed = other_knob.radius + margin
-        print(f"Distance: {distance} > Required Distance: {required_distance}\n"
-              f"Other Radius: {other_knob.radius}  My Radius: {self.radius}")
+        return max_radius_allowed
+
+    def check_margins_column(self, other_knob, max_radius):
+        # Calculate the distance between the two centers
+        margin = min(self.side_length * 0.1, 15)
+        distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
+                             ((self.circle_center[1] - other_knob.circle_center[1])**2))
+        # Calculate the required distance (sum of radii + margin)
+        required_distance = (self.radius + other_knob.radius + margin)  # 15 pixels margin
+        # If the distance is less than the required distance, re-populate random values
+        counter = 0
+        while distance < required_distance:
+            self.populate_random(max_radius)
+            distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
+                                 ((self.circle_center[1] - other_knob.circle_center[1])**2))
+            required_distance = (self.radius + other_knob.radius + margin)  # 15 pixels margin
+            max_radius = other_knob.radius + margin
+            counter += 1
+            if counter > 10:
+                # TODO insert a safe knob for all here.
+                self.populate_random(1)
+            elif counter == 11:
+                print("This knob has broken")
+                break
         return
