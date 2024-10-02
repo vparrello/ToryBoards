@@ -25,6 +25,7 @@ class EdgeKnob:
         self.end_position = beginning_coord
         self.radius = 0
         self.stem = [self.side_length, 0, 0]
+        self.reflect_flag = True
     
     def draw_edge(self, turtle):
         turtle.down()

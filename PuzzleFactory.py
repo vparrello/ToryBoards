@@ -27,29 +27,41 @@ class PuzzleFactory:
         self.dev = dev # This flag turns on the svg turtle if it is false
         self.pieces = []
         self.knobs = 0
+        self.x_start = 50
+        self.y_start = 50
 
     # Audits number of knobs if I feel like I need it. Currently, not used
     def plus_knob(self):
         self.knobs = self.knobs + 1
         return self.knobs
 
+    def create_border(self):
+        # this creates a 5% border around the puzzle
+        # TODO take 5% of the screen height and width for the border.
+        self.x_start = self.x_dim * .05
+        self.y_dim = self.y_dim - (self.x_start / 2)
+        self.x_dim = self.x_dim - (self.x_start / 2)
+        # Take away that amount twice from both x_dim and y_dim
+        # initialize the new x_dim and y_dim and the new x_start
+        return self.x_start
+
     def make_puzzle(self, board_id):
         # Initialization of Turtle for svg is different.
         # Therefore, dev true means traditional turtle where Dev False means svg template.
         if not self.dev:
-            ziti = SvgTurtle(self.x_dim * 2 + 50, self.y_dim * 2 + 50)
+            ziti = SvgTurtle(self.x_dim * 2, self.y_dim * 2)
         else:
             # Initialize the screen and set how big it is
             screen = turtle.Screen()
-            screen.setworldcoordinates(self.x_dim + 50, self.y_dim + 50, 0, 0)
+            screen.setworldcoordinates(self.x_dim, self.y_dim, 0, 0)
             ziti = turtle.Turtle()
             ziti.speed(0)
-        ziti.up()
-        ziti.setpos(0, self.y_dim)
+
+        # Initialize the boarder so that the puzzle dimensions are centered and accurate for only the puzzle.
+        self.create_border()
 
         # Initialize the Board
         puzzle = Board.Board(board_id=board_id, num_of_pieces=self.piece_count, width=self.x_dim, height=self.y_dim)
-
         # Initialize piece creation
         # Piece creation happens when the center of a piece is created. 
         piece_area=puzzle.piece_area_calc()
@@ -62,6 +74,8 @@ class PuzzleFactory:
         side_length=puzzle.hex_side_calc()
 
         # Grab the current x-position for the turtle
+        ziti.up()
+        ziti.setpos(self.x_start, self.y_dim)
         x_pos = ziti.xcor()
 
         # Creates a list of columns and their headings so that the turtle can easily iterate through them
@@ -72,6 +86,7 @@ class PuzzleFactory:
 
         # Maintains a list of bottom edge start and end points for knobs
         bottom_edge_knob = []
+        puzzle.row_count(side_length)
         for i in range(puzzle.column_count(side_length)):
             x_pos = x_pos + side_length
             if i % 3 == 0:
@@ -96,8 +111,8 @@ class PuzzleFactory:
 
         new_edge = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
         # Initialize the turtle to draw the columns edges.
-        ziti.setpos(0, self.y_dim)
-        ziti.seth(column_addresses[(0, self.y_dim)])
+        ziti.setpos(self.x_start, self.y_dim)
+        ziti.seth(column_addresses[(self.x_start, self.y_dim)])
         # Creates a list of rows that are used to create bottoms, tops, and centers of the pieces.
         # Also draws right edge
         row_addresses = puzzle.draw_column_edge(ziti, new_edge)
@@ -119,7 +134,7 @@ class PuzzleFactory:
             ziti.up()
             ziti.setpos(address)
             ziti.seth(0)
-            if int(ziti.xcor()) == 0:
+            if int(ziti.xcor()) == self.x_start:
                 counter = 0
             else:
                 counter = 2
@@ -167,7 +182,7 @@ class PuzzleFactory:
                         # Insert the piece into piece lookup in Board (puzzle)
                 counter += 1
         print("Rows are completed")
-        column_addresses.pop((0, self.y_dim))
+        column_addresses.pop((self.x_start, self.y_dim))
         column_addresses.pop(column_list[-1])
         # This creates the columns in which the pieces get created
         print(f"Column Addresses: {column_addresses}")
@@ -199,7 +214,8 @@ class PuzzleFactory:
                         new_knob.check_margins(bottom_west_piece.knob_list["Bottom"], top_east_piece.knob_list["Top"])
                     else:
                         max_radius = new_knob.check_margins(top_east_piece.knob_list["Top"], bottom_west_piece.knob_list["Bottom"])
-                        new_knob.check_margins_column(top_east_piece.knob_list["BottomEast"], max_radius)
+                        if not top_east_piece.knob_list["BottomEast"].reflect_flag:
+                            new_knob.check_margins_column(top_east_piece.knob_list["BottomEast"], max_radius)
                     new_knob.create_knob(ziti)
                     bottom_west_piece.knob_list["BottomWest"] = new_knob
                     top_east_piece.knob_list["TopEast"] = new_knob
@@ -211,7 +227,8 @@ class PuzzleFactory:
                         (round(new_knob.end_position[0] + side_length, 2), round(new_knob.end_position[1], 2))]
                     if new_knob.reflect_flag:
                         max_radius = new_knob.check_margins(top_west_piece.knob_list["Top"], bottom_east_piece.knob_list["Bottom"])
-                        new_knob.check_margins_column(top_west_piece.knob_list["BottomWest"], max_radius)
+                        if top_west_piece.knob_list["BottomWest"].reflect_flag:
+                            new_knob.check_margins_column(top_west_piece.knob_list["BottomWest"], max_radius)
                     else:
                         new_knob.check_margins(bottom_east_piece.knob_list["Bottom"], top_west_piece.knob_list["Top"])
 

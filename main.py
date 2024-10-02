@@ -16,16 +16,16 @@ import time
 start = time.time()
 
 #Piece count needs to include an inflation amount for the area on the edge of the board. Either .935 or 1.06 factor
-PIECE_COUNT = 500
+PIECE_COUNT = 250
 # Board is 18 inches by 24 inches
-X_DIMENSION = 1800
-Y_DIMENSION = 2400
+X_DIMENSION = 5400
+Y_DIMENSION = 7200
 # Edge pieces toggle. Currently does nothing
 EDGE_YES = True
 # DEV true means traditional turtle where Dev False means svg file creation.
 DEV = True
 # This determines what the file is saved as
-BOARD_ID = 12
+BOARD_ID = 11
 
 puzzle = PuzzleFactory.PuzzleFactory(PIECE_COUNT, X_DIMENSION, Y_DIMENSION, EDGE_YES, DEV)
 board_data = puzzle.make_puzzle(BOARD_ID)

@@ -23,11 +23,13 @@ class Board:
 
     def piece_area_calc(self):
         '''Calculates Piece Area based on height and width of board'''
-        piece_area = (self.width * self.height * .98) / self.num_of_pieces
+        piece_area = (self.width * self.height) / self.num_of_pieces
         return piece_area
 
     def column_count(self, knob_side_length):
-        self.columns = int(self.width / knob_side_length)
+        sym_width = int(self.width / 3)
+        self.columns = int(sym_width / knob_side_length) * 3 - 1
+        # TODO need to make this always divisible by 3
         print(f"Number of columns: {self.columns}")
         return self.columns
 

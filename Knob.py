@@ -68,19 +68,23 @@ class Knob:
     def populate_random(self, radius_max):
         # Initialize Stem distances and stem height and end position
         min_stem_0 = max(1, int(0.15 * self.side_length))
-        self.stem[0] = random.randint(min_stem_0, int(0.5 * self.side_length))
+        self.stem[0] = random.randint(min_stem_0, int(0.6 * self.side_length))
         stem_leftovers = self.side_length - self.stem[0]
-        min_radius = max(1, int(0.15 * stem_leftovers))
+        min_radius = max(1, int(0.1 * stem_leftovers))
         # Account for Max Radius equation in margin validation function
         if radius_max == 0:
-            self.radius = random.randint(min_radius, int(0.3 * stem_leftovers))
+            self.radius = random.randint(min_radius, int(0.33 * stem_leftovers))
+        elif radius_max == 1:
+            self.radius = min_radius
+            self.stem[2] = 0
         else:
-            radius_max = min(radius_max, int(0.6 * stem_leftovers))
-            self.radius = random.randint(int(min_radius), int(radius_max) )
+            radius_max = min(radius_max, int(0.33 * stem_leftovers))
+            radius_range = [int(radius_max), int(min_radius)]
+            radius_range.sort()
+            self.radius = random.randint(radius_range[0], radius_range[1])
         self.stem[1] = stem_leftovers - self.radius
         # This is stem height
-        min_stem_2 = max(1, int(0.15 * self.side_length))  # Increased minimum to 10%
-        self.stem[2] = random.randint(min_stem_2, int(0.25 * self.side_length))  # Decreased max to 25%
+        self.stem[2] = random.randint(1, int(0.25 * self.side_length))  # Decreased max to 25%
 
         # Distance to closest edge of the circle
         # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
@@ -170,17 +174,36 @@ class Knob:
         return
 
     def draw_side(self, turtle):
-        # Initialize the first coordinate of the stem
+       # TODO use the stem turn to adjust how far the stem tilts from perpendicular of the side.
+       # This will help with creating more variety for the knob to not get stuck. Currently not used
+        self.stem_turn = 90
+        if self.reflect_flag:
+            self.circle_margin = -self.stem[0] * 0.3
+        else:
+            self.circle_margin = self.stem[0] * 0.3
         turtle.down()
-        turtle.forward(self.stem[0])
+        # Take .3 percent of the first stem length to give space for the circle turn.
+        turtle.forward(self.stem[0]-abs(self.circle_margin))
+        return_position = turtle.pos()
+        turtle.circle(self.circle_margin, extent=self.stem_turn)
         self.stem.append(turtle.pos())
-        # Initialize the second coordinate of the stem
         turtle.up()
+        turtle.goto(return_position)
+        turtle.setheading(self.heading)
+        turtle.forward(abs(self.circle_margin))
+        # Initialize the second coordinate of the stem
         turtle.forward(self.radius)
-        self.stem.append(turtle.pos())
+        turtle.forward(abs(self.circle_margin))
+        return_position = turtle.pos()
+        turtle.left(180)
         turtle.down()
-        # Finish the side to the end coordinate.
-        turtle.forward(self.stem[1])
+        turtle.circle(-self.circle_margin, extent=self.stem_turn)
+        self.stem.append(turtle.pos())
+        turtle.up()
+        turtle.goto(return_position)
+        turtle.down()
+        turtle.setheading(self.heading)
+        turtle.forward(self.stem[1]-abs(self.circle_margin))
         turtle.up()
         self.end_position = (turtle.pos())
         return
@@ -225,7 +248,7 @@ class Knob:
 
     def check_margins(self, other_knob, backup_knob):
         # Calculate the distance between the two centers
-        margin = min(self.side_length * 0.1, 15)
+        margin = max(self.side_length * 0.2, 65)
         distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
                              ((self.circle_center[1] - other_knob.circle_center[1])**2))
         # Calculate the required distance (sum of radii + margin)
@@ -241,7 +264,6 @@ class Knob:
                                  ((self.circle_center[1] - other_knob.circle_center[1]) ** 2))
             required_distance = (self.radius + other_knob.radius + margin)
             max_radius_allowed = other_knob.radius + margin
-            print("I have flipped")
         counter = 0
         # If the distance is less than the required distance, re-populate random values
         while distance < required_distance:
@@ -250,11 +272,22 @@ class Knob:
                                  ((self.circle_center[1] - other_knob.circle_center[1])**2))
             required_distance = (self.radius + other_knob.radius + margin)  # 15 pixels margin
             max_radius_allowed = other_knob.radius + margin
+            counter += 1
+            if counter > 100:
+                # TODO insert a safe knob for all here.
+                self.populate_random(1)
+                print("This knob has broken")
+                print(f"SELF: Circle Center: {self.circle_center}, Radius: {self.radius}, and Stem: {self.stem}")
+                print(f"OTHER: Circle Center: {other_knob.circle_center}, Radius: {other_knob.radius}, and Stem: {other_knob.stem}")
+                break
+        print("This knob was successful and checked against a horizontal piece")
+        print(f"SELF: Circle Center: {self.circle_center}, Radius: {self.radius}, and Stem: {self.stem}")
+        print(f"OTHER: Circle Center: {other_knob.circle_center}, Radius: {other_knob.radius}, and Stem: {other_knob.stem}")
         return max_radius_allowed
 
     def check_margins_column(self, other_knob, max_radius):
         # Calculate the distance between the two centers
-        margin = min(self.side_length * 0.1, 15)
+        margin = max(self.side_length * 0.2, 65)
         distance = math.sqrt(((self.circle_center[0] - other_knob.circle_center[0])**2) +
                              ((self.circle_center[1] - other_knob.circle_center[1])**2))
         # Calculate the required distance (sum of radii + margin)
@@ -268,10 +301,14 @@ class Knob:
             required_distance = (self.radius + other_knob.radius + margin)  # 15 pixels margin
             max_radius = other_knob.radius + margin
             counter += 1
-            if counter > 10:
+            if counter > 100:
                 # TODO insert a safe knob for all here.
                 self.populate_random(1)
-            elif counter == 11:
                 print("This knob has broken")
+                print(f"SELF: Circle Center: {self.circle_center}, Radius: {self.radius}, and Stem: {self.stem}")
+                print(f"OTHER: Circle Center: {other_knob.circle_center}, Radius: {other_knob.radius}, and Stem: {other_knob.stem}")
                 break
+        print("This knob was successful and tested the column")
+        print(f"SELF: Circle Center: {self.circle_center}, Radius: {self.radius}, and Stem: {self.stem}")
+        print(f"OTHER: Circle Center: {other_knob.circle_center}, Radius: {other_knob.radius}, and Stem: {other_knob.stem}")
         return
