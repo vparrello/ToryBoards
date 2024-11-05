@@ -1,0 +1,42 @@
+Instance,Knob,Circle Center,Radius,1st Stem,2nd Stem,Stem Height,Other
+This knob has broken
+SELF: Circle Center: (3933.354165978241, 1354.9578142185694), Radius: 12, avparrellnd Stem: [116, 111.30916052591647, 7]
+OTHER: Circle Center: (4043.291988151974, 1374.0795924886022), Radius: 58, and Stem: [35, 146.30916052591647, -45, (4014.29,1458.81), (4072.29,1458.81)]
+
+This knob was successful and tested the column
+SELF: Circle Center: (3670.459644570949, 1965.6916323985135), Radius: 59, and Stem: [54, 126.30916052591647, 55]
+OTHER: Circle Center: (3548.307641695976, 2187.815089119456), Radius: 15, and Stem: [112, 112.30916052591647, -1, (3527.58,2184.51), (3535.08,2171.52)]
+This knob was successful and checked against a horizontal piece
+SELF: Circle Center: (3634.037115115472, 1856.87906481003), Radius: 52, and Stem: [64, 123.30916052591647, 57]
+OTHER: Circle Center: (3768.8282473628, 1730.0831577234958), Radius: 11, and Stem: [143, 85.30916052591647, 44, (3763.33,1719.46), (3774.33,1719.46)]
+This knob was successful and checked against a horizontal piece
+SELF: Circle Center: (3645.6032381104, 1560.9280584582311), Radius: 47, and Stem: [64, 128.30916052591647, 39]
+OTHER: Circle Center: (3768.8282473628, 1730.0831577234958), Radius: 11, and Stem: [143, 85.30916052591647, 44, (3763.33,1719.46), (3774.33,1719.46)]
+
+
+This knob was successful and checked against a horizontal piece
+SELF: Circle Center: (3506.9647993470962, 3314.541954657723), Radius: 36, and Stem: [56, 147.30916052591647, -57]
+OTHER: Circle Center: (3330.364506573714, 3167.2723270118313), Radius: 30, and Stem: [54, 155.30916052591647, 14, (3315.36,3143.49), (3345.36,3143.49)]
+This knob was successful and checked against a horizontal piece
+SELF: Circle Center: (3585.422378405732, 3074.607608804337), Radius: 22, and Stem: [77, 140.30916052591647, 28]
+OTHER: Circle Center: (3677.3282473626223, 2981.292463830478), Radius: 28, and Stem: [43, 168.30916052591647, 37, (3663.33,2932.94), (3691.33,2932.94)]
+This knob was successful and checked against a horizontal piece
+SELF: Circle Center: (3647.1032381104005, 2817.405313758517), Radius: 41, and Stem: [55, 143.30916052591647, 39]
+OTHER: Circle Center: (3677.3282473626223, 2981.292463830478), Radius: 28, and Stem: [43, 168.30916052591647, 37, (3663.33,2932.94), (3691.33,2932.94)]
+
+This knob was successful and checked against a horizontal piece
+SELF: Circle Center: (2840.1384903675066, 1015.780120160075), Radius: 21, and Stem: [52, 166.30916052591647, 12]
+OTHER: Circle Center: (3024.9007657859447, 920.7521622662712), Radius: 21, and Stem: [112, 106.30916052591647, 55, (3014.40,881.17), (3035.40,881.17)]
+This knob was successful and tested the column
+SELF: Circle Center: (2840.1384903675066, 1015.780120160075), Radius: 21, and Stem: [52, 166.30916052591647, 12]
+OTHER: Circle Center: (2913.5321629932864, 1145.3606369410008), Radius: 15, and Stem: [88, 136.30916052591647, 55, (2881.26,1172.65), (2873.76,1159.66)]
+This knob was successful and checked against a horizontal piece
+SELF: Circle Center: (2902.747553302457, 730.740656540164), Radius: 32, and Stem: [85, 122.30916052591647, 31]
+OTHER: Circle Center: (3024.9007657859447, 920.7521622662712), Radius: 21, and Stem: [112, 106.30916052591647, 55, (3014.40,881.17), (3035.40,881.17)]
+This knob was successful and checked against a horizontal piece
+SELF: Circle Center: (2887.7628460204905, 577.9736062797735), Radius: 39, and Stem: [87, 113.30916052591647, 26]
+OTHER: Circle Center: (3022.055346049232, 313.4154237763066), Radius: 0, and Stem: [239.30916052591647, 0, 0]
+This knob was successful and tested the column
+SELF: Circle Center: (2887.7628460204905, 577.9736062797735), Radius: 39, and Stem: [87, 113.30916052591647, 26]
+OTHER: Circle Center: (2902.747553302457, 730.740656540164), Radius: 32, and Stem: [85, 122.30916052591647, 31, (2881.98,761.20), (2865.98,733.49)]
+Starting column at (3141.71,7065.00)

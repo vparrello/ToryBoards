@@ -8,7 +8,6 @@
 # Then it draws the pieces side by side first by columns and then by rows
 #
 ####
-import copy
 import Board
 import Piece
 import Knob
