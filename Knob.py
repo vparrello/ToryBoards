@@ -65,15 +65,16 @@ class Knob:
         self.stem = [self.side_length, 0, 0]
         self.populate_random(0)
 
-    def populate_random(self, radius_max):
+    def populate_maximized(self, radius_max):
         # Initialize Stem distances and stem height and end position
         min_stem_0 = max(1, int(0.15 * self.side_length))
-        self.stem[0] = random.randint(min_stem_0, int(0.6 * self.side_length))
+        self.stem[0] = int(0.6 * self.side_length)  # Maximize stem length
         stem_leftovers = self.side_length - self.stem[0]
         min_radius = max(1, int(0.1 * stem_leftovers))
-        # Account for Max Radius equation in margin validation function
+        
+        # Maximize radius
         if radius_max == 0:
-            self.radius = random.randint(min_radius, int(0.33 * stem_leftovers))
+            self.radius = int(0.33 * stem_leftovers)
         elif radius_max == 1:
             self.radius = min_radius
             self.stem[2] = 0
@@ -81,10 +82,10 @@ class Knob:
             radius_max = min(radius_max, int(0.33 * stem_leftovers))
             radius_range = [int(radius_max), int(min_radius)]
             radius_range.sort()
-            self.radius = random.randint(radius_range[0], radius_range[1])
+            self.radius = radius_range[1]  # Maximize radius
+
         self.stem[1] = stem_leftovers - self.radius
-        # This is stem height
-        self.stem[2] = random.randint(1, int(0.25 * self.side_length))  # Decreased max to 25%
+        self.stem[2] = int(0.25 * self.side_length)  # Maximize stem height
 
         # Distance to closest edge of the circle
         # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
@@ -125,14 +126,14 @@ class Knob:
                 self.circle_center = (self.beginning_coord[0] - xcor, self.beginning_coord[1] - ycor)
         else:
             self.stem[2] = abs(self.stem[2])
+            adjacent = self.stem[0] + (self.radius/2)
+            opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
+            hypottenous = math.sqrt(adjacent**2 + opposite**2)
+            inner_angle = math.degrees(math.acos(adjacent/hypottenous))
             if self.heading == 0:
                 self.circle_center = (self.beginning_coord[0] + self.stem[0] + (self.radius / 2),
                                       self.beginning_coord[1] + self.stem[2] + (self.radius * math.sqrt(3) / 2))
             elif self.heading == 240:
-                adjacent = self.stem[0] + (self.radius/2)
-                opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
-                hypottenous = math.sqrt(adjacent**2 + opposite**2)
-                inner_angle = math.degrees(math.acos(adjacent/hypottenous))
                 angle_to_axis = math.radians(abs(30 - inner_angle))
                 if inner_angle > 30:
                     xcor = -(math.sin(angle_to_axis)) * hypottenous
@@ -141,10 +142,91 @@ class Knob:
                 ycor = math.cos(angle_to_axis) * hypottenous
                 self.circle_center = (self.beginning_coord[0] - xcor, self.beginning_coord[1] - ycor)
             else:
+                angle_to_axis = math.radians(60 - inner_angle)
+                ycor = math.sin(angle_to_axis) * hypottenous
+                xcor = math.cos(angle_to_axis) * hypottenous
+                self.circle_center = (self.beginning_coord[0] + xcor, self.beginning_coord[1] - ycor)
+
+        return
+
+
+
+    def populate_random(self, radius_max):
+        # Initialize Stem distances and stem height and end position
+        min_stem_0 = max(1, int(0.15 * self.side_length))
+        self.stem[0] = random.randint(min_stem_0, int(0.6 * self.side_length))
+        stem_leftovers = self.side_length - self.stem[0]
+        min_radius = max(1, int(0.1 * stem_leftovers))
+        # Account for Max Radius equation in margin validation function
+        if radius_max == 0:
+            self.radius = random.randint(min_radius, int(0.33 * stem_leftovers))
+        elif radius_max == 1:
+            self.radius = min_radius
+            self.stem[2] = 0
+        else:
+            radius_max = min(radius_max, int(0.33 * stem_leftovers))
+            radius_range = [int(radius_max), int(min_radius)]
+            radius_range.sort()
+            self.radius = random.randint(radius_range[0], radius_range[1])
+        self.stem[1] = stem_leftovers - self.radius
+        # This is stem height
+        self.stem[2] = random.randint(1, int(0.25 * self.side_length))  # Decreased max to 25%
+
+        # Distance to closest edge of the circle
+        # (q1 + r1/2 - q2/2 - 7r2/4 -h2*sqrt3/2 + w/2)
+        if self.heading == 300:
+            self.end_position = ((self.beginning_coord[0] + self.side_length/2), (self.beginning_coord[1] - self.side_length*(math.sqrt(3)/2)))
+
+        elif self.heading == 240:
+            self.end_position = ((self.beginning_coord[0] - self.side_length/2), (self.beginning_coord[1] - self.side_length*(math.sqrt(3)/2)))
+
+        else:
+            self.end_position = ((self.beginning_coord[0] + self.side_length), self.beginning_coord[1]) 
+        # TODO Refactor this to be shorter
+        if self.reflect_flag:
+            self.stem[2] = -abs(self.stem[2])
+            if self.heading == 0:
+                self.circle_center = (self.beginning_coord[0] + self.stem[0] + (self.radius / 2),
+                                  self.beginning_coord[1] - abs(self.stem[2]) - (self.radius * math.sqrt(3) / 2))
+            elif self.heading == 240:
                 adjacent = self.stem[0] + (self.radius/2)
                 opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
                 hypottenous = math.sqrt(adjacent**2 + opposite**2)
                 inner_angle = math.degrees(math.acos(adjacent/hypottenous))
+                angle_to_axis = math.radians(60 - inner_angle)
+                ycor = math.sin(angle_to_axis) * hypottenous
+                xcor = math.cos(angle_to_axis) * hypottenous 
+                self.circle_center = (self.beginning_coord[0] - xcor, self.beginning_coord[1] - ycor)
+            elif self.heading == 300:
+                adjacent = self.stem[0] + (self.radius/2)
+                opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
+                hypottenous = math.sqrt(adjacent**2 + opposite**2)
+                inner_angle = math.degrees(math.acos(adjacent/hypottenous))
+                angle_to_axis = math.radians(abs(30 - inner_angle))
+                if inner_angle < 30:
+                    xcor = -(math.sin(angle_to_axis)) * hypottenous
+                else:
+                    xcor = math.sin(angle_to_axis) * hypottenous
+                ycor = math.cos(angle_to_axis) * hypottenous
+                self.circle_center = (self.beginning_coord[0] - xcor, self.beginning_coord[1] - ycor)
+        else:
+            self.stem[2] = abs(self.stem[2])
+            adjacent = self.stem[0] + (self.radius/2)
+            opposite = abs(self.stem[2]) + (self.radius * math.sqrt(3) / 2)
+            hypottenous = math.sqrt(adjacent**2 + opposite**2)
+            inner_angle = math.degrees(math.acos(adjacent/hypottenous))
+            if self.heading == 0:
+                self.circle_center = (self.beginning_coord[0] + self.stem[0] + (self.radius / 2),
+                                      self.beginning_coord[1] + self.stem[2] + (self.radius * math.sqrt(3) / 2))
+            elif self.heading == 240:
+                angle_to_axis = math.radians(abs(30 - inner_angle))
+                if inner_angle > 30:
+                    xcor = -(math.sin(angle_to_axis)) * hypottenous
+                else:
+                    xcor = math.sin(angle_to_axis) * hypottenous
+                ycor = math.cos(angle_to_axis) * hypottenous
+                self.circle_center = (self.beginning_coord[0] - xcor, self.beginning_coord[1] - ycor)
+            else:
                 angle_to_axis = math.radians(60 - inner_angle)
                 ycor = math.sin(angle_to_axis) * hypottenous
                 xcor = math.cos(angle_to_axis) * hypottenous

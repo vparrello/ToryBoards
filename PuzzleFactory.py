@@ -26,23 +26,8 @@ class PuzzleFactory:
         self.dev = dev # This flag turns on the svg turtle if it is false
         self.pieces = []
         self.knobs = 0
-        self.x_start = 50
-        self.y_start = 50
-
-    # Audits number of knobs if I feel like I need it. Currently, not used
-    def plus_knob(self):
-        self.knobs = self.knobs + 1
-        return self.knobs
-
-    def create_border(self):
-        # this creates a 5% border around the puzzle
-        # TODO take 5% of the screen height and width for the border.
-        self.x_start = self.x_dim * .05
-        self.y_dim = self.y_dim - (self.x_start / 2)
-        self.x_dim = self.x_dim - (self.x_start / 2)
-        # Take away that amount twice from both x_dim and y_dim
-        # initialize the new x_dim and y_dim and the new x_start
-        return self.x_start
+        self.x_start = 0
+        self.y_start = 0
 
     def make_puzzle(self, board_id):
         # Initialization of Turtle for svg is different.
@@ -56,21 +41,21 @@ class PuzzleFactory:
             ziti = turtle.Turtle()
             ziti.speed(0)
 
-        # Initialize the boarder so that the puzzle dimensions are centered and accurate for only the puzzle.
-        self.create_border()
-
         # Initialize the Board
         puzzle = Board.Board(board_id=board_id, num_of_pieces=self.piece_count, width=self.x_dim, height=self.y_dim)
+
+        puzzle.draw_inside_border(ziti)
+        self.x_dim, self.y_dim, self.x_start, self.y_start = puzzle.draw_outside_border(ziti)
         # Initialize piece creation
         # Piece creation happens when the center of a piece is created. 
-        piece_area=puzzle.piece_area_calc()
+        piece_area=puzzle.piece_area
 
         # Discover "columns" and "rows".
         # Rows draw the horizontal tops and bottoms of the hexagon.
         # Columns draw all left and right sides.
 
         # Initialized the knob for consistent side length
-        side_length=puzzle.hex_side_calc()
+        side_length=puzzle.side_length
 
         # Grab the current x-position for the turtle
         ziti.up()
@@ -85,8 +70,8 @@ class PuzzleFactory:
 
         # Maintains a list of bottom edge start and end points for knobs
         bottom_edge_knob = []
-        puzzle.row_count(side_length)
-        for i in range(puzzle.column_count(side_length)):
+        puzzle.rows
+        for i in range(puzzle.columns - 1):
             x_pos = x_pos + side_length
             if i % 3 == 0:
                 ziti.goto(x_pos, self.y_dim)
@@ -133,7 +118,7 @@ class PuzzleFactory:
             ziti.up()
             ziti.setpos(address)
             ziti.seth(0)
-            if int(ziti.xcor()) == self.x_start:
+            if int(ziti.xcor()) == int(self.x_start):
                 counter = 0
             else:
                 counter = 2
@@ -181,7 +166,7 @@ class PuzzleFactory:
                         # Insert the piece into piece lookup in Board (puzzle)
                 counter += 1
         print("Rows are completed")
-        column_addresses.pop((self.x_start, self.y_dim))
+        column_addresses.pop(column_list[0])
         column_addresses.pop(column_list[-1])
         # This creates the columns in which the pieces get created
         print(f"Column Addresses: {column_addresses}")
