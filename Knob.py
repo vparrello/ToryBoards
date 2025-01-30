@@ -253,11 +253,13 @@ class Knob:
             self.turn_turtle(turtle, True)
         elif self.heading == 300:
             self.turn_turtle(turtle, False)
+        else:
+            turtle.setheading(0)
         return
 
     def draw_side(self, turtle):
        # TODO use the stem turn to adjust how far the stem tilts from perpendicular of the side.
-       # This will help with creating more variety for the knob to not get stuck. Currently not used
+       # This will help with creating more variety for the knob to not get stuck. 
         self.stem_turn = 90
         if self.reflect_flag:
             self.circle_margin = -self.stem[0] * 0.3
@@ -322,10 +324,9 @@ class Knob:
         return
 
     def turn_turtle(self, turtle, reflect):
-        corner_angle = 60
         if reflect:
-            corner_angle = -corner_angle
-        turtle.right(corner_angle)
+            self.corner_angle = -self.corner_angle
+        turtle.right(self.corner_angle)
         return
 
     def check_margins(self, other_knob, backup_knob):
@@ -358,11 +359,11 @@ class Knob:
             if counter > 100:
                 # TODO insert a safe knob for all here.
                 self.populate_random(1)
-                print("This knob has broken")
+                print("BROKEN")
                 print(f"SELF: Circle Center: {self.circle_center}, Radius: {self.radius}, and Stem: {self.stem}")
                 print(f"OTHER: Circle Center: {other_knob.circle_center}, Radius: {other_knob.radius}, and Stem: {other_knob.stem}")
                 break
-        print("This knob was successful and checked against a horizontal piece")
+        print("success: checked horizontal")
         print(f"SELF: Circle Center: {self.circle_center}, Radius: {self.radius}, and Stem: {self.stem}")
         print(f"OTHER: Circle Center: {other_knob.circle_center}, Radius: {other_knob.radius}, and Stem: {other_knob.stem}")
         return max_radius_allowed
@@ -386,11 +387,11 @@ class Knob:
             if counter > 100:
                 # TODO insert a safe knob for all here.
                 self.populate_random(1)
-                print("This knob has broken")
+                print("SUPER BROKEN")
                 print(f"SELF: Circle Center: {self.circle_center}, Radius: {self.radius}, and Stem: {self.stem}")
                 print(f"OTHER: Circle Center: {other_knob.circle_center}, Radius: {other_knob.radius}, and Stem: {other_knob.stem}")
                 break
-        print("This knob was successful and tested the column")
+        print("success: tested the column")
         print(f"SELF: Circle Center: {self.circle_center}, Radius: {self.radius}, and Stem: {self.stem}")
         print(f"OTHER: Circle Center: {other_knob.circle_center}, Radius: {other_knob.radius}, and Stem: {other_knob.stem}")
         return

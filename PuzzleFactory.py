@@ -44,11 +44,8 @@ class PuzzleFactory:
         # Initialize the Board
         puzzle = Board.Board(board_id=board_id, num_of_pieces=self.piece_count, width=self.x_dim, height=self.y_dim)
 
-        puzzle.draw_inside_border(ziti)
-        self.x_dim, self.y_dim, self.x_start, self.y_start = puzzle.draw_outside_border(ziti)
-        # Initialize piece creation
-        # Piece creation happens when the center of a piece is created. 
-        piece_area=puzzle.piece_area
+        puzzle.draw_outside_border(ziti)
+        self.x_dim, self.y_dim, self.x_start, self.y_start = puzzle.draw_inside_border(ziti)
 
         # Discover "columns" and "rows".
         # Rows draw the horizontal tops and bottoms of the hexagon.
@@ -70,22 +67,31 @@ class PuzzleFactory:
 
         # Maintains a list of bottom edge start and end points for knobs
         bottom_edge_knob = []
-        puzzle.rows
-        for i in range(puzzle.columns - 1):
+        for i in range(puzzle.columns):
             x_pos = x_pos + side_length
             if i % 3 == 0:
                 ziti.goto(x_pos, self.y_dim)
                 bottom_edge_knob = []
             else:
+                # This draws the bottom side of the puzzle
                 ziti.goto(x_pos, self.y_dim)
                 bottom_edge_knob.append(ziti.pos())
+
                 if i % 3 == 2:
-                    new_edge = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
+                    new_edge = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading())
                     bottom_edges.append(new_edge)
                     # Edge has finished drawing
                     column_addresses[ziti.pos()] = 300
+                    last_pos = ziti.pos()
+                    if i % 2 == 0:
+                        border_knob = Knob.Knob(side_length, 90, ziti.pos(), 90)
+                        border_knob.turn_turtle(ziti, True)
+                        border_knob.create_knob(ziti)
+                        ziti.seth(0)
                     ziti.up()
+                    ziti.goto(last_pos)
                     # Nothing gets drawn. This is a start position for a knob.
+
                 else:
                     # This is now where the beginning of the edge happens
                     column_addresses[ziti.pos()] = 240
@@ -93,23 +99,22 @@ class PuzzleFactory:
                     ziti.down()
         ziti.up()
 
-        new_edge = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
+        new_edge = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading())
         # Initialize the turtle to draw the columns edges.
         ziti.setpos(self.x_start, self.y_dim)
         ziti.seth(column_addresses[(self.x_start, self.y_dim)])
         # Creates a list of rows that are used to create bottoms, tops, and centers of the pieces.
         # Also draws right edge
-        row_addresses = puzzle.draw_column_edge(ziti, new_edge)
-        first_row = row_addresses[0]
-        row_addresses.pop(0)
+        first_row = ziti.pos()
+        row_addresses = puzzle.draw_column_edge(ziti, new_edge, right=True)
         # Attach those knobs to the corresponding center pieces
         column_list = list(column_addresses.keys())
         ziti.setpos(column_list[-1])
         ziti.seth(column_addresses[(column_list[-1])])
         # This draws the left edge of the puzzle.
-        end_column_addresses = puzzle.draw_column_edge(ziti, new_edge)
-        last_y = max(row_addresses[-2][1], row_addresses[-1][1])
-        last_x = min(end_column_addresses[-2][0], end_column_addresses[-1][0])
+        end_row_addresses = puzzle.draw_column_edge(ziti, new_edge, False)
+        last_y = row_addresses[-2][1]
+        last_x = min(end_row_addresses[1][0], end_row_addresses[0][0])
         # At this point we have initialized the bottom and side edges
         # This prints out all of the rows
         print("Bottom and side edges created")
@@ -129,7 +134,7 @@ class PuzzleFactory:
                 elif counter % 3 == 1:
                     # This creates the center of the next row of hexagons
                     if address[1] > side_length/3: #This if skips the first row
-                        new_piece = Piece.Piece(piece_area, ziti.pos())
+                        new_piece = Piece.Piece(puzzle.piece_area, ziti.pos())
                         new_piece.knob_list["Bottom"] = bottom_edges[0]
                         bottom_edges.pop(0)
                         self.pieces.append(new_piece)
@@ -137,17 +142,25 @@ class PuzzleFactory:
                 elif counter % 3 == 2:
                     # This draws only the top 2 edges of the puzzle
                     if int(ziti.ycor()) <= int(last_y):
-                        new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
+                        new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading())
                         new_knob.draw_edge(ziti)
                         new_knob.end_position = ziti.pos()
+                        # if (int(ziti.xcor()) % (4*side_length)) == 1: #TODO this is where I'm stuck
+                        #     last_pos = ziti.pos()
+                        #     border_knob = Knob.Knob(side_length, 90, ziti.pos(), 270)
+                        #     border_knob.turn_turtle(ziti, False)
+                        #     border_knob.create_knob(ziti)
+                        #     ziti.seth(new_knob.heading)
+                        #     ziti.up()
+                        #     ziti.goto(last_pos)
                         bottom_edges.append(new_knob)
                         self.pieces[0].knob_list["Top"] = new_knob
                         formatted_id = (round(self.pieces[0].piece_id[0], 2), round(self.pieces[0].piece_id[1], 2))
                         puzzle.piece_lookup[formatted_id] = self.pieces[0]
                         self.pieces.pop(0)
                     # This draws the bottom 2 edges of the puzzle
-                    elif ziti.ycor() == row_addresses[0][1] or ziti.ycor() == first_row: # This is the first two row_addresses[0][1] and row_addresses[1][1]
-                        new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
+                    elif int(ziti.ycor()) == int(row_addresses[0][1]) or ziti.ycor() == first_row: # This is the first two row_addresses[0][1] and row_addresses[1][1]
+                        new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading())
                         new_knob.draw_edge(ziti)
                         new_knob.end_position = ziti.pos()
                         bottom_edges.append(new_knob)
@@ -173,7 +186,7 @@ class PuzzleFactory:
         for address in column_addresses.keys():
             print(f"Starting column at {address}")
             ziti.setpos(address)
-            new_knob = EdgeKnob.EdgeKnob(side_length, address, column_addresses[address], ziti)
+            new_knob = EdgeKnob.EdgeKnob(side_length, address, column_addresses[address])
             ziti.setheading(new_knob.heading)
             new_knob.draw_edge(ziti)
             new_knob.end_position = ziti.pos()
@@ -220,7 +233,7 @@ class PuzzleFactory:
                     top_west_piece.knob_list["TopWest"] = new_knob
                     bottom_east_piece.knob_list["BottomEast"] = new_knob
 
-            new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading(), ziti)
+            new_knob = EdgeKnob.EdgeKnob(side_length, ziti.pos(), ziti.heading())
             if ziti.heading() == 240:
                 top_west_piece = puzzle.piece_lookup[
                     (round(new_knob.beginning_coord[0] - side_length, 2), round(new_knob.beginning_coord[1], 2))]

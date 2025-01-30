@@ -17,7 +17,7 @@ import random
 
 class EdgeKnob:
 
-    def __init__(self, side_length, beginning_coord, heading, turtle):
+    def __init__(self, side_length, beginning_coord, heading):
         self.side_length = side_length
         self.beginning_coord = beginning_coord
         self.heading = heading
