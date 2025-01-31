@@ -16,7 +16,7 @@ import time
 start = time.time()
 
 #Piece count needs to include an inflation amount for the area on the edge of the board. Either .935 or 1.06 factor
-PIECE_COUNT = 150
+PIECE_COUNT = 500
 # Board is 18 inches by 24 inches
 X_DIMENSION = 5400
 Y_DIMENSION = 7200
